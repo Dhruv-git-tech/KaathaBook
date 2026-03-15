@@ -217,14 +217,35 @@ async function initDB() {
     console.log('👤 Default retailer account created (retailer/admin123)');
   }
 
-  // Create accounts for existing customers if they don't have one
+  // Seed some sample customers if none exist (useful for testing on Vercel)
+  const custCount = await db.get('SELECT COUNT(*) as count FROM customers');
+  if (custCount.count === 0) {
+    const samples = [
+      { id: 'KB-10001', name: 'Ramesh Kumar', phone: '9876543210', initials: 'RK' },
+      { id: 'KB-C101', name: 'Sample Customer', phone: '9999999999', initials: 'SC' }
+    ];
+    for (const c of samples) {
+      await db.run(
+        `INSERT INTO customers (id, name, phone, initials, balance, "limit", cycle, dueDate) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [c.id, c.name, c.phone, c.initials, 0, 2000, 'Monthly', new Date(Date.now() + 30*86400000).toISOString().split('T')[0]]
+      );
+      await db.run(
+        'INSERT OR IGNORE INTO users (username, password, role, custId, name) VALUES (?, ?, ?, ?, ?)',
+        [c.id, c.id, 'customer', c.id, c.name]
+      );
+    }
+    console.log('👥 Sample customers seeded');
+  }
+
+  // Create accounts for existing customers if they don't have one (consistency check)
   const allCusts = await db.all('SELECT id, name FROM customers');
   for (const c of allCusts) {
     const user = await db.get('SELECT * FROM users WHERE custId = ?', c.id);
     if (!user) {
       await db.run(
-        'INSERT INTO users (username, password, role, custId) VALUES (?, ?, ?, ?)',
-        [c.id, c.id, 'customer', c.id]
+        'INSERT INTO users (username, password, role, custId, name) VALUES (?, ?, ?, ?, ?)',
+        [c.id, c.id, 'customer', c.id, c.name]
       );
     }
   }
@@ -257,6 +278,7 @@ app.post('/api/auth/login', async (req, res) => {
           username: customer.id,
           name: customer.name,
           role: 'customer',
+          custId: customer.id,
           lastLogin: new Date().toISOString()
         };
         // Auto-create user record for faster future lookups and role persistence
@@ -272,7 +294,7 @@ app.post('/api/auth/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    await db.run('UPDATE users SET lastLogin = CURRENT_TIMESTAMP WHERE id = ?', user.id);
+    await db.run('UPDATE users SET lastLogin = CURRENT_TIMESTAMP WHERE id = ?', user.id || user.username);
     
     // In a real app, we'd use JWT. For this demo, we return the user profile.
     const { password: _, ...userInfo } = user;
