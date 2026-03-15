@@ -1,0 +1,3577 @@
+<!DOCTYPE html>
+<!-- saved from url=(0022)http://localhost:3000/ -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>KaathaBook — Digital Udhaar Store</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com/">
+  <link href="./KaathaBook — Digital Udhaar Store_files/css2" rel="stylesheet">
+  <script src="./KaathaBook — Digital Udhaar Store_files/qrcode.min.js.download"></script>
+  <script src="./KaathaBook — Digital Udhaar Store_files/clear-cache.js.download"></script>
+  <script src="./KaathaBook — Digital Udhaar Store_files/socket.io.js.download"></script>
+  <script src="./KaathaBook — Digital Udhaar Store_files/utils.js.download"></script>
+  <script src="./KaathaBook — Digital Udhaar Store_files/index.min.js.download"></script>
+  <link rel="manifest" href="http://localhost:3000/manifest.json">
+  <meta name="theme-color" content="#E85D04">
+  <meta name="description" content="KaathaBook - Digital Credit Ledger for Kirana Shops">
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent
+    }
+
+    :root {
+      --saffron: #E85D04;
+      --saffron2: #FF6B2B;
+      --saffron-l: #FFF3ED;
+      --saffron-d: #B84700;
+      --indigo: #2B3AC2;
+      --indigo2: #3F50E0;
+      --indigo-l: #EEF0FD;
+      --green: #1A9E6A;
+      --green-l: #E6F7F1;
+      --amber: #D4860A;
+      --amber-l: #FEF4E0;
+      --red: #D03030;
+      --red-l: #FDECEC;
+      --bg: #F5F2EE;
+      --card: #FFFFFF;
+      --text: #111111;
+      --muted: #707070;
+      --border: #E4DFD8;
+      --sh: 0 2px 16px rgba(0, 0, 0, .08);
+      --sh2: 0 4px 24px rgba(0, 0, 0, .12);
+      --r: 14px;
+      --r2: 20px;
+    }
+
+    html,
+    body {
+      height: 100%;
+      font-family: 'Noto Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.5;
+      overflow-x: hidden
+    }
+
+    body.te {
+      font-family: 'Noto Sans Telugu', 'Noto Sans', sans-serif
+    }
+
+    /* ── LAYOUT ── */
+    .app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      max-width: 480px;
+      margin: 0 auto;
+      position: relative;
+      background: var(--bg)
+    }
+
+    .topbar {
+      background: var(--card);
+      border-bottom: 1.5px solid var(--border);
+      padding: 0 16px;
+      height: 54px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      z-index: 50;
+      position: sticky;
+      top: 0
+    }
+
+    .logo {
+      font-family: 'Baloo 2', sans-serif;
+      font-weight: 800;
+      font-size: 22px;
+      color: var(--saffron);
+      letter-spacing: -.5px
+    }
+
+    .logo em {
+      color: var(--indigo);
+      font-style: normal
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    .topbar-store {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 500
+    }
+
+    .av {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--indigo);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      flex-shrink: 0
+    }
+
+    .scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 14px 100px;
+      -webkit-overflow-scrolling: touch
+    }
+
+    .scroll::-webkit-scrollbar {
+      display: none
+    }
+
+    .btmbar {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 480px;
+      background: var(--card);
+      border-top: 1.5px solid var(--border);
+      display: flex;
+      z-index: 50;
+      padding-bottom: env(safe-area-inset-bottom)
+    }
+
+    .btm-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 9px 0 7px;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 600;
+      gap: 3px;
+      transition: color .15s
+    }
+
+    .btm-label {
+      display: block;
+      font-size: 9px
+    }
+
+    .btm-btn svg {
+      width: 22px;
+      height: 22px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: stroke .15s
+    }
+
+    .btm-btn.active {
+      color: var(--saffron)
+    }
+
+    .btm-btn.active svg {
+      stroke: var(--saffron)
+    }
+
+    /* ── PAGES ── */
+    .page {
+      display: none;
+      animation: fi .2s ease
+    }
+
+    .page.on {
+      display: block
+    }
+
+    @keyframes fi {
+      from {
+        opacity: 0;
+        transform: translateY(5px)
+      }
+
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
+
+    /* ── TYPOGRAPHY ── */
+    h2 {
+      font-family: 'Baloo 2', sans-serif;
+      font-size: 18px;
+      font-weight: 700
+    }
+
+    h3 {
+      font-family: 'Baloo 2', sans-serif;
+      font-size: 15px;
+      font-weight: 700
+    }
+
+    .muted {
+      color: var(--muted)
+    }
+
+    .caption {
+      font-size: 12px;
+      color: var(--muted)
+    }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--card);
+      border-radius: var(--r2);
+      border: 1px solid var(--border);
+      box-shadow: var(--sh);
+      padding: 18px;
+      margin-bottom: 14px
+    }
+
+    .card-sm {
+      padding: 14px 16px
+    }
+
+    /* ── STAT GRID ── */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px
+    }
+
+    .stat {
+      background: var(--card);
+      border-radius: var(--r);
+      border: 1px solid var(--border);
+      padding: 14px;
+      cursor: default
+    }
+
+    .stat-val {
+      font-family: 'Baloo 2', sans-serif;
+      font-size: 26px;
+      font-weight: 800;
+      line-height: 1.1
+    }
+
+    .stat-lbl {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 3px
+    }
+
+    .stat-pill {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-top: 6px
+    }
+
+    .pill-g {
+      background: var(--green-l);
+      color: var(--green)
+    }
+
+    .pill-r {
+      background: var(--red-l);
+      color: var(--red)
+    }
+
+    .pill-a {
+      background: var(--amber-l);
+      color: var(--amber)
+    }
+
+    .pill-i {
+      background: var(--indigo-l);
+      color: var(--indigo)
+    }
+
+    /* ── SECTION HEADER ── */
+    .sh {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px
+    }
+
+    .sa {
+      background: none;
+      border: none;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--saffron);
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 8px;
+      transition: background .15s
+    }
+
+    .sa:hover {
+      background: var(--saffron-l)
+    }
+
+    /* ── SEARCH ── */
+    .sbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 9px 14px;
+      margin-bottom: 14px
+    }
+
+    .sbar input {
+      flex: 1;
+      border: none;
+      background: none;
+      font-size: 14px;
+      color: var(--text);
+      outline: none
+    }
+
+    .sbar input::placeholder {
+      color: var(--muted)
+    }
+
+    /* ── CUSTOMER ITEMS ── */
+    .ci {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 0;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: opacity .15s
+    }
+
+    .ci:last-child {
+      border-bottom: none
+    }
+
+    .ci:active {
+      opacity: .7
+    }
+
+    .cav {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 14px;
+      flex-shrink: 0
+    }
+
+    .cinfo {
+      flex: 1;
+      min-width: 0
+    }
+
+    .cname {
+      font-weight: 600;
+      font-size: 14px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis
+    }
+
+    .cmeta {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 1px
+    }
+
+    .cbadge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 8px;
+      margin-top: 3px
+    }
+
+    .cbadge.due {
+      background: var(--saffron-l);
+      color: var(--saffron-d)
+    }
+
+    .cbadge.clear {
+      background: var(--green-l);
+      color: var(--green)
+    }
+
+    .cbadge.over {
+      background: var(--red-l);
+      color: var(--red)
+    }
+
+    .cbadge.warn {
+      background: var(--amber-l);
+      color: var(--amber)
+    }
+
+    .camt {
+      text-align: right;
+      flex-shrink: 0
+    }
+
+    .camtv {
+      font-weight: 800;
+      font-size: 15px
+    }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 13px 20px;
+      border-radius: 14px;
+      font-family: 'Baloo 2', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      transition: transform .12s, opacity .12s;
+      width: 100%
+    }
+
+    .btn:active {
+      transform: scale(.97)
+    }
+
+    .btn-pri {
+      background: var(--saffron);
+      color: #fff
+    }
+
+    .btn-pri:hover {
+      background: var(--saffron2)
+    }
+
+    .btn-sec {
+      background: var(--indigo);
+      color: #fff
+    }
+
+    .btn-grn {
+      background: var(--green);
+      color: #fff
+    }
+
+    .btn-out {
+      background: transparent;
+      border: 1.5px solid var(--border);
+      color: var(--text)
+    }
+
+    .btn-sm {
+      padding: 8px 16px;
+      font-size: 13px;
+      border-radius: 10px
+    }
+
+    /* ── FORMS ── */
+    .form-group {
+      margin-bottom: 14px
+    }
+
+    .form-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 6px;
+      display: block;
+      text-transform: uppercase;
+      letter-spacing: .5px
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      font-size: 14px;
+      color: var(--text);
+      background: var(--card);
+      outline: none;
+      transition: border-color .15s;
+      font-family: 'Noto Sans', sans-serif
+    }
+
+    .form-input:focus {
+      border-color: var(--saffron)
+    }
+
+    .form-select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23707070' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center
+    }
+
+    /* ── CATALOG GRID ── */
+    .cat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px
+    }
+
+    .cat-item {
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all .15s;
+      position: relative;
+      user-select: none
+    }
+
+    .cat-item:active {
+      transform: scale(.95)
+    }
+
+    .cat-item.sel {
+      border-color: var(--saffron);
+      background: var(--saffron-l)
+    }
+
+    .cat-emoji {
+      font-size: 26px;
+      margin-bottom: 4px;
+      display: block
+    }
+
+    .cat-name {
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 1.3
+    }
+
+    .cat-price {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--saffron-d);
+      margin-top: 3px
+    }
+
+    .cat-qty-badge {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background: var(--saffron);
+      color: #fff;
+      width: 18px;
+      height: 18px;
+      border-radius: 9px;
+      font-size: 10px;
+      font-weight: 800;
+      display: none;
+      align-items: center;
+      justify-content: center
+    }
+
+    .cat-qty-badge.v {
+      display: flex
+    }
+
+    /* ── CART ── */
+    .cart-wrap {
+      background: var(--indigo-l);
+      border: 1.5px dashed #99A6F0;
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 14px;
+      min-height: 64px
+    }
+
+    .cart-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 0;
+      border-bottom: 1px solid rgba(43, 58, 194, .12);
+      font-size: 13px
+    }
+
+    .cart-row:last-child {
+      border-bottom: none;
+      padding-top: 10px;
+      font-weight: 800;
+      font-size: 14px
+    }
+
+    .qctrl {
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .qbtn {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 1.5px solid var(--indigo2);
+      background: none;
+      color: var(--indigo2);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      transition: all .1s
+    }
+
+    .qbtn:active {
+      background: var(--indigo2);
+      color: #fff
+    }
+
+    /* ── CUST PICKER ── */
+    .cpick {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      margin-bottom: 14px;
+      scrollbar-width: none
+    }
+
+    .cpick::-webkit-scrollbar {
+      display: none
+    }
+
+    .cpill {
+      flex-shrink: 0;
+      padding: 7px 14px;
+      border-radius: 20px;
+      border: 1.5px solid var(--border);
+      background: var(--card);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all .15s
+    }
+
+    .cpill.act {
+      border-color: var(--saffron);
+      background: var(--saffron-l);
+      color: var(--saffron-d)
+    }
+
+    /* ── ALERT ── */
+    .alert {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--saffron-l);
+      border: 1.5px solid #FFBF9F;
+      border-radius: 12px;
+      padding: 11px 14px;
+      margin-bottom: 14px
+    }
+
+    .alert.warn {
+      background: var(--amber-l);
+      border-color: #F5C78A
+    }
+
+    .alert.red {
+      background: var(--red-l);
+      border-color: #F5AAAA
+    }
+
+    .alert-txt {
+      flex: 1;
+      font-size: 13px;
+      line-height: 1.4
+    }
+
+    .alert-txt strong {
+      color: var(--saffron-d)
+    }
+
+    .alert-btn {
+      flex-shrink: 0;
+      background: var(--saffron);
+      color: #fff;
+      border: none;
+      border-radius: 9px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap
+    }
+
+    /* ── QR HERO CARD ── */
+    .qr-hero {
+      background: var(--indigo2);
+      border-radius: 22px;
+      padding: 22px 20px;
+      color: #fff;
+      text-align: center;
+      margin-bottom: 14px;
+      position: relative;
+      overflow: hidden
+    }
+
+    .qr-hero::before,
+    .qr-hero::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .07)
+    }
+
+    .qr-hero::before {
+      width: 140px;
+      height: 140px;
+      top: -50px;
+      right: -40px
+    }
+
+    .qr-hero::after {
+      width: 90px;
+      height: 90px;
+      bottom: -30px;
+      left: -30px
+    }
+
+    .qr-store {
+      font-size: 11px;
+      opacity: .65;
+      margin-bottom: 4px;
+      letter-spacing: .5px;
+      text-transform: uppercase
+    }
+
+    .qr-name {
+      font-family: 'Baloo 2', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 2px
+    }
+
+    .qr-id {
+      font-size: 12px;
+      opacity: .65;
+      margin-bottom: 18px
+    }
+
+    .qr-box {
+      width: 110px;
+      height: 110px;
+      background: #fff;
+      border-radius: 14px;
+      margin: 0 auto 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 1
+    }
+
+    .qr-hint {
+      font-size: 12px;
+      opacity: .75;
+      margin-bottom: 16px
+    }
+
+    .qr-stats {
+      display: flex;
+      justify-content: space-around;
+      border-top: 1px solid rgba(255, 255, 255, .2);
+      padding-top: 16px;
+      position: relative;
+      z-index: 1
+    }
+
+    .qr-stat {
+      text-align: center
+    }
+
+    .qr-stat-v {
+      font-family: 'Baloo 2', sans-serif;
+      font-size: 20px;
+      font-weight: 800
+    }
+
+    .qr-stat-l {
+      font-size: 11px;
+      opacity: .65;
+      margin-top: 2px
+    }
+
+    /* ── TX HISTORY ── */
+    .tx {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border)
+    }
+
+    .tx:last-child {
+      border-bottom: none
+    }
+
+    .tx-dot {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      flex-shrink: 0
+    }
+
+    .tx-info {
+      flex: 1
+    }
+
+    .tx-title {
+      font-weight: 600;
+      font-size: 13px
+    }
+
+    .tx-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px
+    }
+
+    .tx-right {
+      text-align: right;
+      flex-shrink: 0
+    }
+
+    .tx-amt {
+      font-size: 14px;
+      font-weight: 800
+    }
+
+    .tx-date {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px
+    }
+
+    /* ── SCANNER ── */
+    .scanner-area {
+      background: #000;
+      border-radius: 16px;
+      overflow: hidden;
+      position: relative;
+      margin-bottom: 14px;
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center
+    }
+
+    #scanner-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover
+    }
+
+    .scanner-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none
+    }
+
+    .scan-frame {
+      width: 65%;
+      height: 65%;
+      border: 3px solid var(--saffron2);
+      border-radius: 16px;
+      position: relative
+    }
+
+    .scan-frame::before,
+    .scan-frame::after {
+      content: '';
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      border-color: var(--saffron2);
+      border-style: solid
+    }
+
+    .scan-frame::before {
+      top: -3px;
+      left: -3px;
+      border-width: 3px 0 0 3px;
+      border-radius: 4px 0 0 4px
+    }
+
+    .scan-frame::after {
+      bottom: -3px;
+      right: -3px;
+      border-width: 0 3px 3px 0;
+      border-radius: 0 0 4px 0
+    }
+
+    .scan-line {
+      position: absolute;
+      left: 8%;
+      right: 8%;
+      height: 2px;
+      background: linear-gradient(to right, transparent, var(--saffron2), transparent);
+      animation: scanline 1.8s ease-in-out infinite
+    }
+
+    @keyframes scanline {
+      0% {
+        top: 10%
+      }
+
+      100% {
+        top: 88%
+      }
+    }
+
+    .scan-status {
+      position: absolute;
+      bottom: 14px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 500;
+      background: rgba(0, 0, 0, .5);
+      padding: 6px;
+      border-radius: 8px;
+      margin: 0 12px
+    }
+
+    .scan-result {
+      background: var(--green-l);
+      border: 1.5px solid var(--green);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      display: none
+    }
+
+    .scan-result.v {
+      display: block
+    }
+
+    /* ── ANALYTICS BARS ── */
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px
+    }
+
+    .bar-lbl {
+      font-size: 12px;
+      color: var(--muted);
+      width: 88px;
+      flex-shrink: 0;
+      text-align: right;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap
+    }
+
+    .bar-track {
+      flex: 1;
+      background: var(--border);
+      border-radius: 6px;
+      height: 24px;
+      overflow: hidden
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      font-size: 11px;
+      font-weight: 800;
+      color: #fff;
+      transition: width 1.2s cubic-bezier(.4, 0, .2, 1);
+      min-width: 32px
+    }
+
+    .bar-v {
+      font-size: 12px;
+      font-weight: 700;
+      width: 52px;
+      flex-shrink: 0;
+      text-align: right
+    }
+
+    /* ── MODAL ── */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .45);
+      z-index: 200;
+      display: none;
+      align-items: flex-end;
+      justify-content: center
+    }
+
+    .overlay.on {
+      display: flex;
+      animation: fadein .2s
+    }
+
+    .modal {
+      background: var(--card);
+      border-radius: 22px 22px 0 0;
+      padding: 24px 18px max(32px, env(safe-area-inset-bottom));
+      width: 100%;
+      max-width: 480px;
+      animation: su .25s cubic-bezier(.3, 1, .4, 1);
+      max-height: 85vh;
+      overflow-y: auto
+    }
+
+    @keyframes su {
+      from {
+        transform: translateY(100%)
+      }
+
+      to {
+        transform: translateY(0)
+      }
+    }
+
+    .modal-hdr {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px
+    }
+
+    .modal-hdr h2 {
+      font-size: 17px
+    }
+
+    .modal-close {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--bg);
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0
+    }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      top: 66px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-10px);
+      background: #111;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 500;
+      z-index: 400;
+      opacity: 0;
+      transition: all .25s;
+      pointer-events: none;
+      white-space: nowrap;
+      max-width: 300px;
+      text-align: center
+    }
+
+    .toast.on {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0)
+    }
+
+    /* ── TABS ── */
+    .tabs {
+      display: flex;
+      background: var(--bg);
+      border-radius: 12px;
+      padding: 4px;
+      gap: 4px;
+      margin-bottom: 16px
+    }
+
+    .tab {
+      flex: 1;
+      padding: 8px;
+      border: none;
+      background: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all .15s
+    }
+
+    .tab.on {
+      background: var(--card);
+      color: var(--text);
+      box-shadow: 0 1px 6px rgba(0, 0, 0, .1)
+    }
+
+    /* ── ACTIVITY FEED ── */
+    .act-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--border)
+    }
+
+    .act-item:last-child {
+      border-bottom: none
+    }
+
+    .act-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0
+    }
+
+    .act-text {
+      font-size: 13px;
+      flex: 1
+    }
+
+    .act-time {
+      font-size: 11px;
+      color: var(--muted);
+      flex-shrink: 0
+    }
+
+    /* ── EMPTY STATE ── */
+    .empty {
+      text-align: center;
+      padding: 36px 20px;
+      color: var(--muted)
+    }
+
+    .empty-icon {
+      font-size: 42px;
+      margin-bottom: 10px
+    }
+
+    .empty h3 {
+      font-size: 15px;
+      color: var(--text);
+      margin-bottom: 6px
+    }
+
+    .empty p {
+      font-size: 13px;
+      line-height: 1.6
+    }
+
+    /* ── DETAIL PAGE ── */
+    .detail-hero {
+      background: var(--indigo2);
+      color: #fff;
+      border-radius: 22px;
+      padding: 20px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 14px
+    }
+
+    .detail-av {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 18px;
+      background: rgba(255, 255, 255, .2);
+      flex-shrink: 0
+    }
+
+    .detail-info {
+      flex: 1;
+      min-width: 0
+    }
+
+    .detail-name {
+      font-family: 'Baloo 2', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      line-height: 1.1
+    }
+
+    .detail-sub {
+      font-size: 12px;
+      opacity: .7;
+      margin-top: 3px
+    }
+
+    .detail-bal {
+      font-family: 'Baloo 2', sans-serif;
+      font-size: 24px;
+      font-weight: 800;
+      margin-top: 6px
+    }
+
+    .detail-bal.ok {
+      color: #7FEBB8
+    }
+
+    .detail-bal.due {
+      color: #FFB77A
+    }
+
+    .detail-bal.over {
+      color: #FF8A8A
+    }
+
+    /* ── SEGMENTED ── */
+    .seg {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 14px;
+      overflow-x: auto;
+      scrollbar-width: none
+    }
+
+    .seg::-webkit-scrollbar {
+      display: none
+    }
+
+    .seg-btn {
+      flex-shrink: 0;
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1.5px solid var(--border);
+      background: var(--card);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      color: var(--muted);
+      transition: all .15s
+    }
+
+    .seg-btn.on {
+      background: var(--saffron);
+      border-color: var(--saffron);
+      color: #fff
+    }
+
+    /* ── PRODUCT ITEMS ── */
+    .prod-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 0;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer
+    }
+
+    .prod-item:last-child {
+      border-bottom: none
+    }
+
+    .prod-emoji {
+      font-size: 28px;
+      flex-shrink: 0;
+      width: 40px;
+      text-align: center
+    }
+
+    .prod-info {
+      flex: 1
+    }
+
+    .prod-name {
+      font-weight: 600;
+      font-size: 14px
+    }
+
+    .prod-meta {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 1px
+    }
+
+    .prod-right {
+      text-align: right
+    }
+
+    .prod-price {
+      font-weight: 800;
+      font-size: 15px;
+      color: var(--saffron-d)
+    }
+
+    .prod-stock {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px
+    }
+
+    .low-stock {
+      color: var(--red) !important;
+      font-weight: 600
+    }
+
+    /* ── NOTIFICATION BADGE ── */
+    .nbadge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: var(--red);
+      color: #fff;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      font-size: 9px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid var(--bg)
+    }
+
+    /* ── PAYMENT DUE TAG ── */
+    .due-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--red-l);
+      border: 1px solid #EFC0C0;
+      color: var(--red);
+      border-radius: 8px;
+      padding: 3px 8px;
+      font-size: 11px;
+      font-weight: 700
+    }
+
+
+    /* ── LOGIN PAGE ── */
+    #pg-login {
+      position: fixed;
+      inset: 0;
+      background: var(--card);
+      z-index: 1000;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px;
+      animation: none
+    }
+
+    #pg-login.on {
+      display: flex
+    }
+
+    .login-header {
+      text-align: center;
+      margin-bottom: 32px
+    }
+
+    .login-logo {
+      font-family: 'Baloo 2', sans-serif;
+      font-weight: 800;
+      font-size: 36px;
+      color: var(--saffron);
+      margin-bottom: 4px
+    }
+
+    .login-logo em {
+      color: var(--indigo);
+      font-style: normal
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 340px;
+      background: var(--bg);
+      padding: 24px;
+      border-radius: 24px;
+      border: 1px solid var(--border);
+      box-shadow: var(--sh)
+    }
+
+    @media(min-width:600px) {
+      .app {
+        box-shadow: 0 0 40px rgba(0, 0, 0, .15)
+      }
+    }
+  </style>
+</head>
+
+<body class="te">
+  <div class="app">
+    <div class="topbar" id="topbar" style="display:none">
+      <div class="logo">Kaatha<em>Book</em></div>
+      <div class="topbar-right">
+        <span class="topbar-store" id="store-name-lbl">Sharma General Store</span>
+        <button class="btn-out" style="width:auto;font-size:10px;padding:4px 8px;border-radius:6px" onclick="logout()">Logout</button>
+        <div class="av" id="store-av">SK</div>
+      </div>
+    </div>
+
+    <!-- PAGES -->
+    <div class="scroll" id="scroll-area">
+
+      <!-- ═══ LOGIN PAGE ═══ -->
+      <div id="pg-login" class="page on">
+        <div class="login-header">
+          <div class="login-logo">Kaatha<em>Book</em></div>
+          <p class="caption">Digital Udhaar Storefor Retailers</p>
+        </div>
+        <div class="login-card">
+          <h3 style="margin-bottom:18px;text-align:center">Secure Login</h3>
+          <div class="form-group">
+            <label class="form-label">Username / Phone</label>
+            <input type="text" id="login-user" class="form-input" placeholder="retailer or KB-C101">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password / ID</label>
+            <input type="password" id="login-pass" class="form-input" placeholder="••••••••">
+          </div>
+          <button class="btn btn-pri" onclick="handleLogin()">Login to Account</button>
+          <p class="caption" style="margin-top:14px;text-align:center">Retailers: use admin123<br>Customers: use your ID
+            as password</p>
+        </div>
+      </div>
+
+      <!-- ═══ DASHBOARD ═══ -->
+      <div id="pg-dashboard" class="page on">
+        <div style="display:flex;gap:10px;margin-bottom:14px">
+          <button class="btn btn-sec btn-sm" style="flex:1" onclick="openQRScannerModal()">📱 QR స్కాన్ చేయండి</button>
+          <button class="btn btn-pri btn-sm" style="flex:1" onclick="navTo(&#39;pg-scan&#39;)">➕ కతా జోడించండి</button>
+        </div>
+        <div class="stat-grid" id="stat-grid">
+    <div class="stat"><div class="stat-val" style="color:var(--saffron)">₹4,910</div><div class="stat-lbl">Total Katha Due</div><div class="stat-pill pill-a">6 customers</div></div>
+    <div class="stat"><div class="stat-val" style="color:var(--green)">₹1,400</div><div class="stat-lbl">Collected March</div><div class="stat-pill pill-g">↑ This month</div></div>
+    <div class="stat"><div class="stat-val" style="color:var(--indigo)">6</div><div class="stat-lbl">Katha Customers</div><div class="stat-pill pill-i">1 settled</div></div>
+    <div class="stat"><div class="stat-val" style="color:var(--red)">0</div><div class="stat-lbl">Overdue Accounts</div><div class="stat-pill pill-r">₹0 at risk</div></div>
+  </div>
+
+        <!-- Quick Search Bar -->
+        <div class="sbar" style="margin-bottom:14px">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="M21 21l-4.35-4.35"></path>
+          </svg>
+          <input type="text" placeholder="Quick find customer..." id="dash-search" oninput="handleDashSearch()">
+        </div>
+        <div id="dash-search-results" style="margin-top:-10px; margin-bottom:14px; display:none"></div>
+
+        <div class="card card-sm" style="background:var(--indigo-l);border-color:var(--indigo)">
+          <div class="sh" style="margin-bottom:8px">
+            <h3 style="color:var(--indigo)">📅 Today's Summary</h3>
+            <span class="caption" style="color:var(--indigo);opacity:.8" id="today-date-lbl">15 March 2026</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center">
+            <div>
+              <div style="font-family:&#39;Baloo 2&#39;,sans-serif;font-size:20px;font-weight:800;color:var(--saffron-d)" id="today-sales">₹420</div>
+              <div class="caption">Sales</div>
+            </div>
+            <div>
+              <div style="font-family:&#39;Baloo 2&#39;,sans-serif;font-size:20px;font-weight:800;color:var(--green)" id="today-coll">₹0</div>
+              <div class="caption">Collections</div>
+            </div>
+            <div>
+              <div style="font-family:&#39;Baloo 2&#39;,sans-serif;font-size:20px;font-weight:800;color:var(--indigo)" id="today-net">₹420</div>
+              <div class="caption">Net Total</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card card-sm" id="alert-card" style="display: block;">
+          <div id="alert-list"><div class="alert" style="margin-bottom:8px"><span style="font-size:20px">💸</span><div class="alert-txt"><strong>Sanjay Samala</strong> has a high balance of ₹1,087.4. Due 25 Mar.</div></div></div>
+        </div>
+
+        <div class="card card-sm">
+          <div class="sh">
+            <h3>Recent Activity</h3><button class="sa" onclick="navTo(&#39;pg-customers&#39;)">All Customers →</button>
+          </div>
+          <div id="activity-feed"><div class="act-item">
+      <div class="act-dot" style="background:var(--saffron)"></div>
+      <div class="act-text">Katha added for <strong>Kiran Patel</strong> — ₹420</div>
+      <div class="act-time">15 Mar</div>
+    </div><div class="act-item">
+      <div class="act-dot" style="background:var(--green)"></div>
+      <div class="act-text"><strong>Rahul Deshmukh</strong> paid ₹400</div>
+      <div class="act-time">14 Mar</div>
+    </div><div class="act-item">
+      <div class="act-dot" style="background:var(--green)"></div>
+      <div class="act-text"><strong>Kiran Patel</strong> paid ₹500</div>
+      <div class="act-time">10 Mar</div>
+    </div><div class="act-item">
+      <div class="act-dot" style="background:var(--green)"></div>
+      <div class="act-text"><strong>Anita Sharma</strong> paid ₹200</div>
+      <div class="act-time">9 Mar</div>
+    </div><div class="act-item">
+      <div class="act-dot" style="background:var(--green)"></div>
+      <div class="act-text"><strong>Sanjay Samala</strong> paid ₹300</div>
+      <div class="act-time">9 Mar</div>
+    </div></div>
+        </div>
+
+        <div class="card card-sm">
+          <div class="sh">
+            <h3 title="Most kathaed items this week">📊 Top Products</h3><button class="sa" onclick="navTo(&#39;pg-analytics&#39;)">Analytics →</button>
+          </div>
+          <div id="top-products" style="font-size:12px;color:var(--muted)">
+    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);align-items:center">
+      <span style="flex:1"><strong>🌾 Whole Wheat Atta 5kg</strong><br><small style="color:var(--muted)">18 units kathaed</small></span>
+      <div style="text-align:right"><strong style="color:var(--saffron)">₹1,438</strong></div>
+    </div>
+  </div>
+        </div>
+
+        <div class="card card-sm">
+          <div class="sh">
+            <h3>Due This Month</h3><span class="caption" id="due-count">5 accounts</span>
+          </div>
+          <div id="due-list"><div class="ci" onclick="openDetail(&#39;KB-10001&#39;)">
+      <div class="cav" style="background:#E3F2FD;color:#1976D2">SS</div>
+      <div class="cinfo"><div class="cname">Sanjay Samala</div><div class="cmeta">9565053915</div><span class="cbadge due">Due in 10d</span></div>
+      <div class="camt"><div class="camtv" style="color:var(--red)">₹1,087.4</div></div>
+    </div><div class="ci" onclick="openDetail(&#39;KB-10003&#39;)">
+      <div class="cav" style="background:#E8F5E9;color:#2E7D32">RD</div>
+      <div class="cinfo"><div class="cname">Rahul Deshmukh</div><div class="cmeta">9980831924</div><span class="cbadge due">Due in 10d</span></div>
+      <div class="camt"><div class="camtv" style="color:var(--saffron-d)">₹991.4</div></div>
+    </div><div class="ci" onclick="openDetail(&#39;KB-10005&#39;)">
+      <div class="cav" style="background:#FFEBEE;color:#C62828">LG</div>
+      <div class="cinfo"><div class="cname">Lakshmamma G</div><div class="cmeta">9497443560</div><span class="cbadge due">Due in 10d</span></div>
+      <div class="camt"><div class="camtv" style="color:var(--saffron-d)">₹974.4</div></div>
+    </div><div class="ci" onclick="openDetail(&#39;KB-10002&#39;)">
+      <div class="cav" style="background:#FFF3E0;color:#F57C00">AS</div>
+      <div class="cinfo"><div class="cname">Anita Sharma</div><div class="cmeta">9928529474</div><span class="cbadge due">Due in 10d</span></div>
+      <div class="camt"><div class="camtv" style="color:var(--saffron-d)">₹962.4</div></div>
+    </div><div class="ci" onclick="openDetail(&#39;KB-10004&#39;)">
+      <div class="cav" style="background:#F3E5F5;color:#7B1FA2">KP</div>
+      <div class="cinfo"><div class="cname">Kiran Patel</div><div class="cmeta">9949058829</div><span class="cbadge due">Due in 10d</span></div>
+      <div class="camt"><div class="camtv" style="color:var(--saffron-d)">₹894.4</div></div>
+    </div></div>
+        </div>
+      </div>
+
+      <!-- ═══ CUSTOMERS ═══ -->
+      <div id="pg-customers" class="page">
+        <div class="sh">
+          <h2 id="cust-title">గ్రాహకులు</h2>
+          <button class="sa btn-sm" onclick="openModal(&#39;modal-add-cust&#39;)" id="add-cust-btn">+ నూతన గ్రాహకుడు</button>
+        </div>
+        <div class="sbar">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="M21 21l-4.35-4.35"></path>
+          </svg>
+          <input type="text" placeholder="పేరు, ఫోన్ లేదా KB ID వెతకండి…" id="cust-search" oninput="renderCustomerList()">
+        </div>
+        <div class="seg" id="cust-filter-seg">
+          <button class="seg-btn on" onclick="setCustFilter(&#39;all&#39;,this)">All</button>
+          <button class="seg-btn" onclick="setCustFilter(&#39;due&#39;,this)">Due</button>
+          <button class="seg-btn" onclick="setCustFilter(&#39;overdue&#39;,this)">Overdue</button>
+          <button class="seg-btn" onclick="setCustFilter(&#39;clear&#39;,this)">Settled</button>
+        </div>
+        <div class="card card-sm">
+          <div id="cust-list"></div>
+        </div>
+      </div>
+
+      <!-- ═══ SCAN / ADD KATHA ═══ -->
+      <div id="pg-scan" class="page">
+        <div style="margin-bottom:14px">
+          <button class="btn btn-out btn-sm" style="width:auto;margin-bottom:10px" onclick="openQRScannerModal()">📱
+            Scan Customer QR</button>
+          <div class="tabs">
+            <button class="tab on" onclick="setScanTab(&#39;catalog&#39;,this)">Catalog</button>
+            <button class="tab" onclick="setScanTab(&#39;scanner&#39;,this)">📷 Scanner</button>
+            <button class="tab" onclick="setScanTab(&#39;payment&#39;,this)">💸 Payment</button>
+          </div>
+        </div>
+
+        <!-- CATALOG TAB -->
+        <div id="stab-catalog">
+          <div class="card card-sm" style="margin-bottom:14px">
+            <div class="sh" style="margin-bottom:10px">
+              <h3>Select Customer</h3>
+            </div>
+            <div class="cpick" id="scan-cpick"></div>
+            <div id="scan-cust-bal" style="font-size:13px;color:var(--muted)"></div>
+            <div id="scan-recommendations" style="margin-top:10px;font-size:12px;padding:8px;background:var(--indigo-l);border-radius:8px;display:none">
+            </div>
+          </div>
+
+          <div class="card card-sm" style="margin-bottom:14px">
+            <div class="sh">
+              <h3>Product Catalog</h3><button class="sa" onclick="openModal(&#39;modal-add-prod&#39;)">+ Product</button>
+            </div>
+            <div class="sbar" style="margin-bottom:10px">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="M21 21l-4.35-4.35"></path>
+              </svg>
+              <input type="text" placeholder="Search products…" id="prod-search" oninput="renderCatalog()">
+            </div>
+            <div class="cat-grid" id="catalog-grid"></div>
+          </div>
+
+          <div class="card card-sm">
+            <div class="sh">
+              <h3>Katha Entry</h3><button class="sa" onclick="clearCart()">Clear</button>
+            </div>
+            <div class="cart-wrap" id="cart-area"></div>
+            <div class="form-group" style="margin-bottom:10px">
+              <input type="text" class="form-input" placeholder="Notes (e.g., Monthly ration)" id="entry-notes">
+            </div>
+            <button class="btn btn-pri" onclick="confirmKatha()">✓ Add to Customer's Katha</button>
+          </div>
+        </div>
+
+        <!-- SCANNER TAB -->
+        <div id="stab-scanner" style="display:none">
+          <div class="card card-sm" style="margin-bottom:14px">
+            <div class="sh" style="margin-bottom:8px">
+              <h3>Select Customer</h3>
+            </div>
+            <div class="cpick" id="scan-cpick2"></div>
+          </div>
+          <div class="scanner-area">
+            <video id="scanner-video" autoplay="" playsinline="" muted=""></video>
+            <div class="scanner-overlay">
+              <div class="scan-frame">
+                <div class="scan-line"></div>
+              </div>
+            </div>
+            <div class="scan-status" id="scan-status">Ready to scan barcode</div>
+          </div>
+          <div class="scan-result" id="scan-result">
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="font-size:24px" id="scan-emoji">🍚</span>
+              <div>
+                <div style="font-weight:700" id="scan-name">Rice 1kg</div>
+                <div style="font-size:12px;color:var(--muted)" id="scan-price">₹65</div>
+              </div>
+              <button class="btn btn-sm btn-grn" style="width:auto;margin-left:auto" onclick="addScannedToCart()">Add
+                →</button>
+            </div>
+          </div>
+          <button class="btn btn-pri" id="scan-toggle-btn" onclick="toggleScanner()" style="margin-bottom:14px">Start
+            Camera</button>
+          <div style="background:var(--indigo-l);border-radius:12px;padding:12px 14px;font-size:13px;color:var(--indigo)">
+            💡 <strong>Tip:</strong> Point camera at any product barcode. The system will automatically identify the
+            product from your catalog by barcode number.
+          </div>
+        </div>
+
+        <!-- PAYMENT TAB -->
+        <div id="stab-payment" style="display:none">
+          <div class="card card-sm">
+            <div class="sh" style="margin-bottom:10px">
+              <h3>Record Payment</h3>
+            </div>
+            <div class="cpick" id="pay-cpick"></div>
+            <div id="pay-cust-info" style="margin-bottom:14px"></div>
+            <div class="form-group">
+              <label class="form-label">Amount Received (₹)</label>
+              <input type="number" class="form-input" placeholder="Enter amount" id="pay-amount">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Payment Method</label>
+              <select class="form-input form-select" id="pay-method">
+                <option value="Cash">Cash</option>
+                <option value="UPI">UPI</option>
+                <option value="Bank Transfer">Bank Transfer</option>
+                <option value="Cheque">Cheque</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Notes</label>
+              <input type="text" class="form-input" placeholder="Monthly settlement, etc." id="pay-notes">
+            </div>
+            <button class="btn btn-grn" onclick="recordPayment()">✓ Record Payment</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ PRODUCTS ═══ -->
+      <div id="pg-products" class="page">
+        <div class="sh">
+          <h2>Product Catalog</h2>
+          <button class="sa btn-sm" onclick="openModal(&#39;modal-add-prod&#39;)">+ Add Product</button>
+        </div>
+        <div class="sbar">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="M21 21l-4.35-4.35"></path>
+          </svg>
+          <input type="text" placeholder="Search products or barcode…" id="prod-search2" oninput="renderProductList()">
+        </div>
+        <div class="card card-sm">
+          <div id="product-list"></div>
+        </div>
+      </div>
+
+      <!-- ═══ ANALYTICS ═══ -->
+      <div id="pg-analytics" class="page">
+        <h2 style="margin-bottom:14px">Analytics</h2>
+        <div class="stat-grid" id="analytics-stats"></div>
+        <div class="card card-sm">
+          <h3 style="margin-bottom:4px">Top Items by Katha Volume</h3>
+          <div class="caption" style="margin-bottom:14px">Last 30 days</div>
+          <div id="items-bar-chart"></div>
+        </div>
+        <div class="card card-sm">
+          <h3 style="margin-bottom:14px">Payment Recovery</h3>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center;margin-bottom:14px">
+            <div>
+              <div style="font-family:&#39;Baloo 2&#39;,sans-serif;font-size:26px;font-weight:800;color:var(--green)" id="a-ontime">0%</div>
+              <div class="caption">On Time</div>
+            </div>
+            <div>
+              <div style="font-family:&#39;Baloo 2&#39;,sans-serif;font-size:26px;font-weight:800;color:var(--amber)" id="a-late">0%</div>
+              <div class="caption">Late</div>
+            </div>
+            <div>
+              <div style="font-family:&#39;Baloo 2&#39;,sans-serif;font-size:26px;font-weight:800;color:var(--red)" id="a-default">0%</div>
+              <div class="caption">Defaulted</div>
+            </div>
+          </div>
+        </div>
+        <div class="card card-sm">
+          <h3 style="margin-bottom:12px">Smart Insights</h3>
+          <div id="insights-list"></div>
+        </div>
+        <div class="card card-sm">
+          <h3 style="margin-bottom:12px">High Balance Customers</h3>
+          <div id="high-bal-list"></div>
+        </div>
+      </div>
+
+      <!-- ═══ CUSTOMER DETAIL ═══ -->
+      <div id="pg-detail" class="page">
+        <button class="btn btn-out btn-sm" style="width:auto;margin-bottom:14px" onclick="navBack()">← Back</button>
+        <div id="detail-hero-wrap"></div>
+        <div class="tabs" id="detail-tabs">
+          <button class="tab on" onclick="setDetailTab(&#39;katha&#39;,this)">Katha Items</button>
+          <button class="tab" onclick="setDetailTab(&#39;history&#39;,this)">History</button>
+          <button class="tab" onclick="setDetailTab(&#39;qr&#39;,this)">QR Card</button>
+        </div>
+        <div id="dtab-katha"></div>
+        <div id="dtab-history" style="display:none"></div>
+        <div id="dtab-qr" style="display:none"></div>
+      </div>
+
+      <!-- ═══ CUSTOMER PORTAL ═══ -->
+      <div id="pg-portal" class="page">
+        <div class="sh">
+          <h2>My Katha</h2><span class="caption">Customer View</span>
+        </div>
+        <div class="seg" id="portal-seg">
+          <button class="seg-btn on" onclick="setPortalCust(customers[0]?.id,this)"></button>
+        </div>
+        <div id="portal-qr-card"></div>
+        <div id="portal-alert"></div>
+        <div class="card card-sm">
+          <h3 style="margin-bottom:12px">This Month's Purchases</h3>
+          <div id="portal-month"></div>
+        </div>
+        <div class="card card-sm">
+          <h3 style="margin-bottom:12px">Transaction History</h3>
+          <div id="portal-history"></div>
+        </div>
+      </div>
+
+    </div><!-- /scroll -->
+
+    <!-- BOTTOM NAV -->
+    <nav class="btmbar" style="display: none;">
+      <button class="btm-btn active" onclick="navTo(&#39;pg-dashboard&#39;)">
+        <svg viewBox="0 0 24 24">
+          <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+          <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+          <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+          <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+        </svg>
+        <span class="btm-label">డ్యాష్‌బోర్డ్</span>
+      </button>
+      <button class="btm-btn" onclick="navTo(&#39;pg-customers&#39;)" style="position:relative">
+        <svg viewBox="0 0 24 24">
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"></path>
+          <path d="M16 3.13a4 4 0 010 7.75"></path>
+          <path d="M21 21v-2a4 4 0 00-3-3.87"></path>
+        </svg>
+        <span class="btm-label">గ్రాహకులు</span>
+      </button>
+      <button class="btm-btn" onclick="navTo(&#39;pg-scan&#39;)">
+        <svg viewBox="0 0 24 24">
+          <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+          <path d="M9 3v18M15 3v18M3 9h18M3 15h18"></path>
+        </svg>
+        <span class="btm-label">స్కాన్ &amp; జోడించు</span>
+      </button>
+      <button class="btm-btn" onclick="navTo(&#39;pg-products&#39;)">
+        <svg viewBox="0 0 24 24">
+          <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"></path>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <path d="M16 10a4 4 0 01-8 0"></path>
+        </svg>
+        <span class="btm-label">ఉత్పత్తులు</span>
+      </button>
+      <button class="btm-btn" onclick="navTo(&#39;pg-analytics&#39;)">
+        <svg viewBox="0 0 24 24">
+          <path d="M18 20V10M12 20V4M6 20v-6"></path>
+        </svg>
+        <span class="btm-label">విశ్లేషణలు</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ════ MODALS ════ -->
+
+  <!-- Add Customer -->
+  <div class="overlay" id="modal-add-cust">
+    <div class="modal">
+      <div class="modal-hdr">
+        <h2>New Katha Customer</h2><button class="modal-close" onclick="closeModal(&#39;modal-add-cust&#39;)">✕</button>
+      </div>
+      <div class="form-group"><label class="form-label">Full Name *</label><input class="form-input" id="nc-name" placeholder="e.g. Ramesh Kumar"></div>
+      <div class="form-group"><label class="form-label">Mobile Number *</label><input class="form-input" id="nc-phone" type="tel" placeholder="10-digit number"></div>
+      <div class="form-group"><label class="form-label">Address</label><input class="form-input" id="nc-addr" placeholder="Street / Area"></div>
+      <div class="form-group"><label class="form-label">Payment Cycle</label>
+        <select class="form-input form-select" id="nc-cycle">
+          <option value="Monthly">Monthly</option>
+          <option value="Every 15 days">Every 15 days</option>
+          <option value="Weekly">Weekly</option>
+          <option value="Custom">Custom Date</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Credit Limit (₹)</label><input class="form-input" id="nc-limit" type="number" placeholder="e.g. 2000" value="1500"></div>
+      <button class="btn btn-sec" onclick="addCustomer()">Generate QR &amp; Register Customer</button>
+    </div>
+  </div>
+
+  <!-- Add Product -->
+  <div class="overlay" id="modal-add-prod">
+    <div class="modal">
+      <div class="modal-hdr">
+        <h2>Add Product</h2><button class="modal-close" onclick="closeModal(&#39;modal-add-prod&#39;)">✕</button>
+      </div>
+      <div class="form-group"><label class="form-label">Product Name *</label><input class="form-input" id="np-name" placeholder="e.g. Basmati Rice 1kg"></div>
+      <div class="form-group"><label class="form-label">Category / Emoji</label><input class="form-input" id="np-emoji" placeholder="🍚" maxlength="4" value="🛒"></div>
+      <div class="form-group"><label class="form-label">Price (₹) *</label><input class="form-input" id="np-price" type="number" placeholder="e.g. 65"></div>
+      <div class="form-group"><label class="form-label">Unit</label>
+        <select class="form-input form-select" id="np-unit">
+          <option>kg</option>
+          <option>g</option>
+          <option>L</option>
+          <option>ml</option>
+          <option>packet</option>
+          <option>piece</option>
+          <option>dozen</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Barcode (optional)</label><input class="form-input" id="np-barcode" placeholder="e.g. 8901234567890"></div>
+      <div class="form-group"><label class="form-label">Stock Quantity</label><input class="form-input" id="np-stock" type="number" placeholder="e.g. 50" value="100"></div>
+      <button class="btn btn-pri" onclick="addProduct()">Add to Catalog</button>
+    </div>
+  </div>
+
+  <!-- Confirm Katha Entry -->
+  <div class="overlay" id="modal-confirm-entry">
+    <div class="modal">
+      <div class="modal-hdr">
+        <h2>Confirm Katha Entry</h2><button class="modal-close" onclick="closeModal(&#39;modal-confirm-entry&#39;)">✕</button>
+      </div>
+      <div id="confirm-summary"></div>
+      <button class="btn btn-pri" onclick="finalizeKatha()" style="margin-top:14px">✓ Confirm &amp; Add to Katha</button>
+    </div>
+  </div>
+
+  <!-- Scanned Item Add -->
+  <div class="overlay" id="modal-scan-add">
+    <div class="modal">
+      <div class="modal-hdr">
+        <h2>Scanned Item</h2><button class="modal-close" onclick="closeModal(&#39;modal-scan-add&#39;)">✕</button>
+      </div>
+      <div id="scan-add-content"></div>
+      <button class="btn btn-pri" onclick="addScannedConfirm()" style="margin-top:14px">Add to Katha</button>
+    </div>
+  </div>
+
+  <!-- Credit Limit Override Modal -->
+  <div class="overlay" id="modal-limit-override">
+    <div class="modal">
+      <div class="modal-hdr">
+        <h2>⚠️ Credit Limit Alert</h2><button class="modal-close" onclick="closeModal(&#39;modal-limit-override&#39;)">✕</button>
+      </div>
+      <div style="background:var(--red-l);border-radius:12px;padding:12px 14px;margin-bottom:14px">
+        <div style="font-size:13px;color:var(--red-d);line-height:1.5" id="limit-alert-msg"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Reason for Override</label>
+        <input type="text" class="form-input" placeholder="e.g., Regular customer, Good payment history" id="override-reason">
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-out" style="flex:1" onclick="closeModal(&#39;modal-limit-override&#39;)">Cancel</button>
+        <button class="btn btn-pri" style="flex:1" onclick="confirmKathaOverride()">Override &amp; Add</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- QR Customer Scanner Modal -->
+  <div class="overlay" id="modal-qr-scanner">
+    <div class="modal">
+      <div class="modal-hdr">
+        <h2>Scan Customer QR</h2><button class="modal-close" onclick="closeQRScanner(&#39;modal-qr-scanner&#39;)">✕</button>
+      </div>
+      <div style="background:var(--indigo-l);border-radius:12px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--indigo)">
+        📱 Point camera at customer's QR code to instantly load their account
+      </div>
+      <div class="scanner-area" id="qr-scanner-area">
+        <video id="qr-scanner-video" autoplay="" playsinline="" muted=""></video>
+        <div class="scanner-overlay">
+          <div class="scan-frame">
+            <div class="scan-line"></div>
+          </div>
+        </div>
+        <div class="scan-status" id="qr-scan-status">Ready to scan customer QR</div>
+      </div>
+      <button class="btn btn-pri" id="qr-scan-toggle-btn" onclick="toggleQRScanner()" style="margin-bottom:14px">Start
+        Camera</button>
+      <button class="btn btn-out" onclick="closeQRScanner(&#39;modal-qr-scanner&#39;)">Cancel</button>
+    </div>
+  </div>
+
+  <script>
+    // ══════════════════════════════════════════════
+    // LOCALIZATION - TELUGU & ENGLISH
+    // ══════════════════════════════════════════════
+    let currentLang = 'en';
+    const translations = {
+      en: {
+        dashboard: 'Dashboard', customers: 'Customers', scanAdd: 'Scan & Add', products: 'Products', analytics: 'Analytics',
+        addCustomer: '+ Add Customer', searchPlaceholder: 'Search name, phone or KB ID…', selectCustomer: 'Select Customer',
+        productCatalog: 'Product Catalog', addProduct: '+ Product', searchProducts: 'Search products…', kathaEntry: 'Katha Entry',
+        confirmAdding: 'Confirm Katha Entry', recordPayment: 'Record Payment', paymentMethod: 'Payment Method',
+        notes: 'Notes', paymentTab: 'Payment', scannerTab: '📷 Scanner', cash: 'Cash', upi: 'UPI', bankTransfer: 'Bank Transfer',
+        cheque: 'Cheque', startCamera: 'Start Camera', stopCamera: 'Stop Camera', scanning: 'Scanning for barcodes…',
+        ready: 'Ready to scan barcode', scanCustomerQR: 'Scan Customer QR', whatsappReminder: 'WhatsApp Reminder',
+        exportData: 'Export', addToKatha: '✓ Add to Customer\'s Katha', confirmEntry: '✓ Confirm & Add to Katha',
+        recordPay: '✓ Record Payment', clearCart: 'Clear', allCustomers: 'All', due: 'Due', overdue: 'Overdue', settled: 'Settled',
+        monthlySettlement: 'Monthly settlement', selectACust: 'Select a customer', addItemsFirst: 'Add items first',
+        limitAlert: '⚠️ Credit Limit Alert', daysLeft: 'days', overdu: 'Overdue', fromTo: 'from', toText: 'to',
+        noTransactions: 'No transactions', thisMonths: 'This Month\'s Purchases', transactionHistory: 'Transaction History',
+        myCusta: 'My Katha', paymentOverdue: 'Payment overdue!', asap: 'as soon as possible', noduesa: 'No dues!',
+        clearAccount: 'Your account is clear.', alertMonth: 'Next payment of', dueOn: 'due on',
+        whatsappOpenFor: 'Opening WhatsApp for', itemAdded: 'added', exportedLedger: 'Exported ledger as CSV',
+        confirmOverride: 'Override & Add', overrideRequired: 'Please provide a reason for override',
+        overdueCustomers: 'Overdue Customers', highBalance: 'High Balance Customers', recentActivity: 'Recent Activity',
+        thisMonth: 'This Month', customer: 'Customer', paid: 'paid', kathaAdded: 'Katha added for',
+        totalDueKatha: 'Total Katha Due', collectedMonth: 'Collected This Month', kathaCustomers: 'Katha Customers',
+        overdueAccounts: 'Overdue Accounts', settled: 'settled', atRisk: 'at risk', noPendingDues: 'No pending dues!',
+        daysAgo: 'days ago', allActivity: 'All Customers →', daysIn: 'Due in',
+        addingKathaTo: 'Adding katha to', currentBalance: 'Current balance', limit: 'Limit',
+        excess: 'Excess', noItems: 'No items added yet', total: 'Total', addItems: 'Add to Cart',
+        addingTo: 'Adding', kartFull: 'Item added to cart', willExceed: 'This will exceed the customer\'s credit limit of',
+        selectCust: 'Select a customer', validAmount: 'Enter a valid amount', pleaseSelect: 'Select for payment',
+        paymentRecorded: 'Payment of', recordedFor: 'recorded for', selectItem: 'Select Product',
+        catalogNotFound: 'No customers found', tryDiff: 'Try a different search or filter.', noProductsFound: 'No products found',
+        addProductsCatalog: 'Add products to your catalog.', barcodeScan: 'Barcode not found in catalog',
+        scanStatus: 'Scanning…', itemDetected: 'Barcode detected!', tipScanning: 'Tip: Point camera at any product barcode',
+        overLimit: 'Over Limit', allSettled: 'All settled!', monthlyCollections: 'Month-end collections peak on 28–31st',
+        topSellingItem: 'Top selling item', considerStocking: 'Consider stocking more.',
+        areOverdue: 'customers are overdue. Send WhatsApp reminders.', averageKatha: 'Average katha balance is',
+        planStaffing: 'Plan staffing accordingly.', noHighBalance: 'No high-balance customers',
+        topItems: 'Top Items by Katha Volume', last30Days: 'Last 30 days', paymentRecovery: 'Payment Recovery',
+        onTime: 'On Time', late: 'Late', defaulted: 'Defaulted', smartInsights: 'Smart Insights',
+        balanceCustomers: 'High Balance Customers',
+      },
+      te: {
+        dashboard: 'డ్యాష్‌బోర్డ్', customers: 'గ్రాహకులు', scanAdd: 'స్కాన్ & జోడించు', products: 'ఉత్పత్తులు', analytics: 'విశ్లేషణలు',
+        addCustomer: '+ నూతన గ్రాహకుడు', searchPlaceholder: 'పేరు, ఫోన్ లేదా KB ID వెతకండి…', selectCustomer: 'గ్రాహకుడిని ఎంచుకోండి',
+        productCatalog: 'ఉత్పత్తి కేటలాగ్', addProduct: '+ ఉత్పత్తి', searchProducts: 'ఉత్పత్తులను వెతకండి…', kathaEntry: 'కతా ఎంట్రీ',
+        confirmAdding: 'కతా ఎంట్రీని నిర్ధారించండి', recordPayment: 'చెల్లింపు నమోదు చేయండి', paymentMethod: 'చెల్లింపు పద్ధతి',
+        notes: 'గమనికలు', paymentTab: 'చెల్లింపు', scannerTab: '📷 స్కానర్', cash: 'నగదు', upi: 'UPI', bankTransfer: 'బ్యాంక్ బదిలీ',
+        cheque: 'చెక్', startCamera: 'కెమెరా ప్రారంభించండి', stopCamera: 'కెమెరా ఆపండి', scanning: 'బార్‌కోడ్‌ల కోసం స్కాన్ చేస్తున్నాము…',
+        ready: 'బార్‌కోడ్‌ను స్కాన్ చేయడానికి సిద్ధమైనది', scanCustomerQR: 'గ్రాహక QR ని స్కాన్ చేయండి', whatsappReminder: 'WhatsApp రిమైండర్',
+        exportData: 'ఎగుమతి చేయండి', addToKatha: '✓ గ్రాహక యొక్క కతాకు జోడించండి', confirmEntry: '✓ నిర్ధారించండి & జోడించండి',
+        recordPay: '✓ చెల్లింపు నమోదు చేయండి', clearCart: 'క్లియర్ చేయండి', allCustomers: 'అన్నీ', due: 'కట్టవలసిన', overdue: 'విలంబం', settled: 'ఖాళీ చేయబడిన',
+        monthlySettlement: 'నెలవారీ సెట్‌లమెంట్', selectACust: 'గ్రాహకుడిని ఎంచుకోండి', addItemsFirst: 'ముందుగా వస్తువులను జోడించండి',
+        limitAlert: '⚠️ క్రెడిట్ పరిమితి హెచ్చరిక', daysLeft: 'రోజులు', overdu: 'విలంబం', fromTo: 'నుండి', toText: 'కు',
+        noTransactions: 'లావాదేవీ లేదు', thisMonths: 'ఈ నెల కొనుగోళ్లు', transactionHistory: 'లావాదేవీ చరిత్ర',
+        myCusta: 'నా కతా', paymentOverdue: 'చెల్లింపు విలంబం!', asap: 'వీలైనంత త్వరగా', noduesa: 'చెల్లింపులు లేవు!',
+        clearAccount: 'మీ ఖాతా స్పష్టంగా ఉంది.', alertMonth: 'మీ చెల్లింపు', dueOn: 'కు బాధ్యత',
+        whatsappOpenFor: 'కోసం WhatsApp తెరుస్తున్నాము', itemAdded: 'జోడించారు', exportedLedger: 'లెజర్‌ను CSV గా ఎగుమతి చేసారు',
+        confirmOverride: 'ఓవర్‌రైడ్ & జోడించండి', overrideRequired: 'దయచేసి ఓవర్‌రైడ్‌ కు కారణం ఇవ్వండి',
+        overdueCustomers: 'విలంబైన గ్రాహకులు', highBalance: 'అధిక బ్యాలెన్సు గ్రాహకులు', recentActivity: 'ఇటీవల కార్యকలాపం',
+        thisMonth: 'ఈ నెల', customer: 'గ్రాహకుడు', paid: 'చెల్లించారు', kathaAdded: 'కतా జోడించారు',
+        totalDueKatha: 'మొత్తం కతా చెల్లుబాటు', collectedMonth: 'ఈ నెల సేకరించారు', kathaCustomers: 'కతా గ్రాహకులు',
+        overdueAccounts: 'విలంబిత ఖాతాలు', settled: 'ఖాళీ చేయబడిన', atRisk: 'ప్రమాదంలో', noPendingDues: 'ఎటువంటి పెండింగ్ ఖర్చులు లేవు!',
+        daysAgo: 'రోజుల క్రితం', allActivity: 'అన్ని గ్రాహకులు →', daysIn: 'లో కట్టవలసిన',
+        addingKathaTo: 'కతాను జోడిస్తున్నాము', currentBalance: 'ప్రస్తుత బ్యాలెన్సు', limit: 'పరిమితి',
+        excess: 'అధిక', noItems: 'ఇంకా ఎటువంటి వస్తువులు జోడించబడలేదు', total: 'మొత్తం', addItems: 'కార్టుకు జోడించండి',
+        addingTo: 'జోడిస్తున్నాము', kartFull: 'కార్టుకు జోడించారు', willExceed: 'ఇది గ్రాహక యొక్క క్రెడిట్ పరిమితిని చేరుకుంటుంది',
+        selectCust: 'గ్రాహకుడిని ఎంచుకోండి', validAmount: 'చెల్లుబాటు అయిన మొత్తాన్ని నమోదు చేయండి', pleaseSelect: 'చెల్లింపు కోసం ఎంచుకోండి',
+        selectItem: 'ఉత్పత్తిని ఎంచుకోండి', catalogNotFound: 'గ్రాహకులు కనుగొనబడలేదు', tryDiff: 'వేరువేరు చోటు నుండి ప్రయత్నించండి.',
+        noProductsFound: 'ఉత్పత్తులు కనుగొనబడలేదు', addProductsCatalog: 'ఉత్పత్తులను కేటలాగ్‌కు జోడించండి.', barcodeScan: 'బార్‌కోడ్ కేటలాగ్‌లో కనుగొనబడలేదు',
+        scanStatus: 'స్కాన్ చేస్తున్నాము…', itemDetected: 'బార్‌కోడ్ కనుగొనబడింది!', tipScanning: 'చిట్కా: ఏదైనా ఉత్పత్తి బార్‌కోడ్‌కు కెమెరాను సూచించండి',
+        overLimit: 'పరిమితిని అధిగమించారు', allSettled: 'అన్నీ ఖాళీ చేయబడ్డాయి!', monthlyCollections: 'నెల-ముగింపు సేకరణలు 28–31 న శిఖరానికి చేరుకుంటాయి',
+        topSellingItem: 'అగ్ర విక్రయ వస్తువు', considerStocking: 'మరిన్ని స్టాక్ చేయడానికి పరిగణించండి.',
+        areOverdue: 'గ్రాహకులు విలంబం కోసం ఉన్నారు. WhatsApp రిమైండర్‌లను పంపండి.', averageKatha: 'సగటు కతా బ్యాలెన్సు',
+        planStaffing: 'కర్మचారుల ప్రణాళిక.', noHighBalance: 'ఎటువంటి అధిక-బ్యాలెన్సు గ్రాహకులు లేరు 🎉',
+        topItems: 'కతా విషయానికి సంబంధించిన అగ్ర విషయాలు', last30Days: 'గత 30 రోజులు', paymentRecovery: 'చెల్లింపు పునరుద్ధరణ',
+        onTime: 'సమయానికి', late: 'ఆలస్యం', defaulted: 'డిఫాల్ట్', smartInsights: 'స్మార్ట్ ఇన్‌సైట్‌లు',
+        balanceCustomers: 'అధిక బ్యాలెన్సు గ్రాహకులు',
+      }
+    };
+
+    function t(key) { return translations[currentLang][key] || translations.en[key] || key; }
+    function toggleLanguage() {
+      currentLang = currentLang === 'en' ? 'te' : 'en';
+      LS.set('kb_lang', currentLang);
+      document.body.className = currentLang === 'te' ? 'te' : '';
+      document.getElementById('lang-toggle').textContent = currentLang === 'en' ? 'EN/తె' : 'EN/తె (English)';
+      rerender();
+    }
+    function rerender() {
+      // Update bottom nav labels
+      const btmLabels = ['డ్యాష్‌బోర్డ్', 'గ్రాహకులు', 'స్కాన్ & జోడించు', 'ఉత్పత్తులు', 'విశ్లేషణలు'];
+      if (currentLang === 'en') {
+        const enLabels = ['Dashboard', 'Customers', 'Scan & Add', 'Products', 'Analytics'];
+        document.querySelectorAll('.btm-label').forEach((el, i) => el.textContent = enLabels[i] || '');
+      } else {
+        document.querySelectorAll('.btm-label').forEach((el, i) => el.textContent = btmLabels[i] || '');
+      }
+
+      // Update key modal titles and buttons
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        el.textContent = t(key);
+      });
+
+      renderDashboard(); renderCustomerList(); renderCatalog(); renderProductList(); renderAnalytics();
+      if (detailCustId) renderDetail();
+
+      // Load data from backend on startup
+      loadBackendData();
+    }
+  </script>
+  <script>
+    // ══════════════════════════════════════════════
+    // BACKEND API CONFIGURATION
+    // ══════════════════════════════════════════════
+    const API_BASE = localStorage.getItem('kb_api_base') || 'http://localhost:3000';
+    let isOnline = navigator.onLine;
+    let syncInProgress = false;
+
+    window.addEventListener('online', () => { isOnline = true; console.log('🟢 Online'); syncAllData(); });
+    window.addEventListener('offline', () => { isOnline = false; console.log('🔴 Offline'); });
+
+    async function apiCall(endpoint, method = 'GET', data = null) {
+      try {
+        if (!isOnline && method !== 'GET') {
+          return null; // Offline, skip sync for now
+        }
+
+        const opts = {
+          method,
+          headers: { 'Content-Type': 'application/json' }
+        };
+        if (data) opts.body = JSON.stringify(data);
+
+        const res = await fetch(`${API_BASE}${endpoint}`, opts);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return await res.json();
+      } catch (err) {
+        console.warn(`⚠️ API Error (${endpoint}): ${err.message}`);
+        return null;
+      }
+    }
+
+    async function syncAllData() {
+      if (syncInProgress || !isOnline) return;
+      syncInProgress = true;
+
+      try {
+        const syncData = {
+          customers: LS.get('kb_customers', []),
+          products: LS.get('kb_products', []),
+          transactions: LS.get('kb_transactions', [])
+        };
+
+        const result = await apiCall('/api/sync', 'POST', syncData);
+        if (result?.success) {
+          console.log('✅ Data synced with backend');
+        }
+      } catch (err) {
+        console.warn('Sync failed:', err);
+      } finally {
+        syncInProgress = false;
+      }
+    }
+
+    // ══════════════════════════════════════════════
+    // DATA LAYER - WITH HYBRID LOCAL/BACKEND SUPPORT
+    // ══════════════════════════════════════════════
+    const LS = {
+      get: (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d } catch { return d } },
+      set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)) } catch { } },
+      remove: (k) => { try { localStorage.removeItem(k) } catch { } }
+    };
+
+    let customers = LS.get('kb_customers', [
+      { id: 'KB-10001', name: 'Ramesh Kumar', phone: '9876543210', addr: 'MG Road, Hyderabad', cycle: 'Monthly', limit: 2000, balance: 1240, initials: 'RK', color: '#3B4DB8', bg: '#EEF0FD', joinDate: '2023-09-15', lastTx: '2024-03-12', dueDate: '2024-03-31' },
+      { id: 'KB-10002', name: 'Sunita Devi', phone: '9654321098', addr: 'Banjara Hills', cycle: 'Monthly', limit: 1500, balance: 680, initials: 'SD', color: '#1A9E6A', bg: '#E6F7F1', joinDate: '2023-11-01', lastTx: '2024-03-10', dueDate: '2024-03-31' },
+      { id: 'KB-10003', name: 'Manoj Yadav', phone: '9543210987', addr: 'Secunderabad', cycle: 'Monthly', limit: 3000, balance: 2100, initials: 'MY', color: '#D4860A', bg: '#FEF4E0', joinDate: '2023-08-20', lastTx: '2024-02-28', dueDate: '2024-02-28' },
+      { id: 'KB-10004', name: 'Priya Sharma', phone: '9432109876', addr: 'Kukatpally', cycle: 'Every 15 days', limit: 800, balance: 0, initials: 'PS', color: '#D03030', bg: '#FDECEC', joinDate: '2024-01-05', lastTx: '2024-03-01', dueDate: '2024-03-15' },
+      { id: 'KB-10005', name: 'Vikram Singh', phone: '9321098765', addr: 'HITEC City', cycle: 'Monthly', limit: 2500, balance: 890, initials: 'VS', color: '#6B3DB8', bg: '#F3EFFE', joinDate: '2023-10-12', lastTx: '2024-03-08', dueDate: '2024-03-31' },
+    ]);
+    let products = LS.get('kb_products', [
+      { id: 'P001', name: 'Basmati Rice 1kg', emoji: '🍚', price: 65, unit: 'kg', barcode: '8901234001001', stock: 120 },
+      { id: 'P002', name: 'Toor Dal 1kg', emoji: '🫙', price: 120, unit: 'kg', barcode: '8901234002001', stock: 80 },
+      { id: 'P003', name: 'Whole Wheat Atta 5kg', emoji: '🌾', price: 210, unit: 'packet', barcode: '8901234003001', stock: 45 },
+      { id: 'P004', name: 'Mustard Oil 1L', emoji: '🧴', price: 185, unit: 'L', barcode: '8901234004001', stock: 30 },
+      { id: 'P005', name: 'Sugar 1kg', emoji: '🍬', price: 44, unit: 'kg', barcode: '8901234005001', stock: 90 },
+      { id: 'P006', name: 'Salt 1kg', emoji: '🧂', price: 18, unit: 'kg', barcode: '8901234006001', stock: 150 },
+      { id: 'P007', name: 'Amul Butter 100g', emoji: '🧈', price: 56, unit: 'piece', barcode: '8901234007001', stock: 25 },
+      { id: 'P008', name: 'Full Cream Milk 500ml', emoji: '🥛', price: 28, unit: 'piece', barcode: '8901234008001', stock: 60 },
+      { id: 'P009', name: 'Surf Excel 1kg', emoji: '🧹', price: 120, unit: 'packet', barcode: '8901234009001', stock: 20 },
+      { id: 'P010', name: 'Chana Dal 1kg', emoji: '🟡', price: 95, unit: 'kg', barcode: '8901234010001', stock: 70 },
+      { id: 'P011', name: 'Tomatoes 500g', emoji: '🍅', price: 25, unit: 'piece', barcode: '8901234011001', stock: 200 },
+      { id: 'P012', name: 'Onions 1kg', emoji: '🧅', price: 35, unit: 'kg', barcode: '8901234012001', stock: 180 },
+    ]);
+    let transactions = LS.get('kb_transactions', [
+      { id: 'TX001', custId: 'KB-10001', type: 'credit', items: [{ pid: 'P001', name: 'Basmati Rice 1kg', qty: 2, price: 65 }, { pid: 'P002', name: 'Toor Dal 1kg', qty: 1, price: 120 }, { pid: 'P006', name: 'Salt 1kg', qty: 1, price: 18 }], total: 318, date: '2024-03-12', notes: 'Weekly ration' },
+      { id: 'TX002', custId: 'KB-10001', type: 'payment', amount: 980, method: 'Cash', date: '2024-03-01', notes: 'Monthly settlement' },
+      { id: 'TX003', custId: 'KB-10002', type: 'credit', items: [{ pid: 'P004', name: 'Mustard Oil 1L', qty: 1, price: 185 }, { pid: 'P005', name: 'Sugar 1kg', qty: 2, price: 44 }], total: 273, date: '2024-03-10', notes: '' },
+      { id: 'TX004', custId: 'KB-10003', type: 'credit', items: [{ pid: 'P003', name: 'Whole Wheat Atta 5kg', qty: 2, price: 210 }, { pid: 'P008', name: 'Full Cream Milk 500ml', qty: 4, price: 28 }], total: 532, date: '2024-02-28', notes: 'Monthly ration' },
+      { id: 'TX005', custId: 'KB-10004', type: 'payment', amount: 420, method: 'UPI', date: '2024-03-01', notes: '' },
+      { id: 'TX006', custId: 'KB-10005', type: 'credit', items: [{ pid: 'P001', name: 'Basmati Rice 1kg', qty: 3, price: 65 }, { pid: 'P009', name: 'Surf Excel 1kg', qty: 1, price: 120 }], total: 315, date: '2024-03-08', notes: '' },
+    ]);
+
+    let cart = {};
+    let selectedScanCust = null;
+    let selectedPayCust = null;
+    let currentPage = 'pg-dashboard';
+    let prevPage = null;
+    let custFilter = 'all';
+    let scanTab = 'catalog';
+    let detailCustId = null;
+    let detailTab = 'katha';
+    let scannerActive = false;
+    let scanStream = null;
+    let scannedProduct = null;
+    let pendingKathaOverride = null;
+    let lastKbId = parseInt(LS.get('kb_last_id', '10005'));
+    let lastProdId = parseInt(LS.get('kb_last_pid', '12').replace('P', ''));
+    let lastTxId = parseInt(LS.get('kb_last_txid', '6').replace('TX', ''));
+
+    function save() {
+      LS.set('kb_customers', customers);
+      LS.set('kb_products', products);
+      LS.set('kb_transactions', transactions);
+      LS.set('kb_last_id', String(lastKbId));
+      LS.set('kb_last_pid', 'P' + String(lastProdId).padStart(3, '0'));
+      LS.set('kb_last_txid', 'TX' + String(lastTxId).padStart(3, '0'));
+    }
+
+    // Load data from backend on startup (if available)
+    async function loadBackendData() {
+      if (!isOnline) return console.log('⏳ Offline - using localStorage only');
+      try {
+        const [custData, prodData, txData] = await Promise.all([
+          apiCall('/api/customers'),
+          apiCall('/api/products'),
+          apiCall('/api/transactions')
+        ]);
+
+        if (custData && custData.length > 0) {
+          customers = custData;
+          lastKbId = Math.max(...customers.map(c => parseInt(c.id.replace('KB-', '')))) || 10005;
+          console.log(`✅ Loaded ${custData.length} customers from backend`);
+        }
+
+        if (prodData && prodData.length > 0) {
+          products = prodData;
+          lastProdId = Math.max(...products.map(p => parseInt(p.id.replace('P', '')))) || 12;
+          console.log(`✅ Loaded ${prodData.length} products from backend`);
+        }
+
+        if (txData && txData.length > 0) {
+          transactions = txData;
+          lastTxId = Math.max(...transactions.map(t => parseInt(t.id.replace('TX', '')))) || 6;
+          console.log(`✅ Loaded ${txData.length} transactions from backend`);
+        }
+
+        save(); // Update localStorage with backend data
+        if (currentPage === 'pg-dashboard') renderDashboard();
+        if (currentPage === 'pg-customers') renderCustomerList();
+        if (currentPage === 'pg-scan') { renderCatalog(); renderScanPickers(); }
+        if (currentPage === 'pg-products') renderProductList();
+        if (currentPage === 'pg-analytics') renderAnalytics();
+        if (currentPage === 'pg-portal') renderPortal();
+      } catch (err) {
+        console.log('📴 Backend unavailable - using localStorage');
+      }
+    }
+
+    // ══════════════════════════════════════════════
+    // NAVIGATION
+    // ══════════════════════════════════════════════
+    function navTo(pg) {
+      if (pg === currentPage) return;
+      prevPage = currentPage;
+      currentPage = pg;
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
+      document.getElementById(pg).classList.add('on');
+      document.querySelectorAll('.btm-btn').forEach((b, i) => {
+        const pages = ['pg-dashboard', 'pg-customers', 'pg-scan', 'pg-products', 'pg-analytics'];
+        b.classList.toggle('active', pages[i] === pg);
+      });
+      document.getElementById('scroll-area').scrollTop = 0;
+      if (pg === 'pg-dashboard') renderDashboard();
+      if (pg === 'pg-customers') renderCustomerList();
+      if (pg === 'pg-scan') { renderCatalog(); renderScanPickers(); }
+      if (pg === 'pg-products') renderProductList();
+      if (pg === 'pg-analytics') renderAnalytics();
+      if (pg === 'pg-portal') renderPortal();
+    }
+    function navBack() { navTo(prevPage || 'pg-dashboard'); }
+    function openDetail(id) {
+      detailCustId = id;
+      prevPage = currentPage;
+      currentPage = 'pg-detail';
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
+      document.getElementById('pg-detail').classList.add('on');
+      document.querySelectorAll('.btm-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('scroll-area').scrollTop = 0;
+      renderDetail();
+    }
+
+    // ══════════════════════════════════════════════
+    // MODALS / TOAST
+    // ══════════════════════════════════════════════
+    function openModal(id) { document.getElementById(id).classList.add('on') }
+    function closeModal(id) { document.getElementById(id).classList.remove('on') }
+    document.querySelectorAll('.overlay').forEach(o => o.addEventListener('click', e => { if (e.target === o) o.classList.remove('on') }));
+    let toastTimer;
+    function toast(msg, dur = 2500) {
+      const t = document.getElementById('toast');
+      t.textContent = msg; t.classList.add('on');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove('on'), dur);
+    }
+
+    // ══════════════════════════════════════════════
+    // HELPERS
+    // ══════════════════════════════════════════════
+    function custStatus(c) {
+      if (c.balance <= 0) return 'clear';
+      const due = new Date(c.dueDate);
+      const now = new Date();
+      if (due < now) return 'over';
+      const diff = Math.ceil((due - now) / (86400000));
+      if (diff <= 7) return 'warn';
+      return 'due';
+    }
+    function statusLabel(c) {
+      const s = custStatus(c);
+      if (s === 'clear') return { cls: 'clear', txt: 'Settled' };
+      if (s === 'over') { const d = Math.ceil((new Date() - new Date(c.dueDate)) / 86400000); return { cls: 'over', txt: `Overdue ${d}d` }; }
+      if (s === 'warn') { const d = Math.ceil((new Date(c.dueDate) - new Date()) / 86400000); return { cls: 'warn', txt: `Due in ${d}d` }; }
+      const d = Math.ceil((new Date(c.dueDate) - new Date()) / 86400000);
+      return { cls: 'due', txt: `Due in ${d}d` };
+    }
+    function fmtDate(d) { return new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) }
+    function fmtDateShort(d) { return new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) }
+    function rupee(n) { return '₹' + Number(n).toLocaleString('en-IN') }
+
+    // 🔗 Socket.io connection for Live Tracking
+    const socket = io();
+    socket.on('connect', () => console.log('✅ Connected to KaathaBook Live Tracking'));
+    socket.on('data-update', (payload) => {
+      console.log('📡 Live Update Received:', payload);
+      // Update local data
+      if (payload.type === 'customer-updated' || payload.type === 'customer-added') {
+        const idx = customers.findIndex(c => c.id === payload.data.id);
+        if (idx !== -1) customers[idx] = payload.data;
+        else customers.push(payload.data);
+        renderCustomerList();
+        if (activeCust && activeCust.id === payload.data.id) {
+          activeCust = payload.data;
+          renderCustomerDetail(activeCust.id);
+        }
+      } else if (payload.type === 'transaction-added') {
+        const { transaction, customer } = payload.data;
+        if (!transactions.find(t => t.id === transaction.id)) {
+          transactions.unshift(transaction);
+          // Update customer balance locally too
+          const cIdx = customers.findIndex(c => c.id === customer.id);
+          if (cIdx !== -1) customers[cIdx] = customer;
+          renderAll();
+        }
+      }
+    });
+    function custTx(id) { return transactions.filter(t => t.custId === id).sort((a, b) => new Date(b.date) - new Date(a.date)) }
+    function custColor(name) { const c = ['#3B4DB8', '#1A9E6A', '#D4860A', '#D03030', '#6B3DB8', '#E85D04', '#197BBD']; return c[name.charCodeAt(0) % c.length] }
+    function custBg(color) { const m = { '#3B4DB8': '#EEF0FD', '#1A9E6A': '#E6F7F1', '#D4860A': '#FEF4E0', '#D03030': '#FDECEC', '#6B3DB8': '#F3EFFE', '#E85D04': '#FFF3ED', '#197BBD': '#E6F3FD' }; return m[color] || '#F5F2EE' }
+
+    // Product Intelligence: Calculate which products are most frequently kathaed
+    function getProductFrequency() {
+      const freq = {};
+      transactions.filter(t => t.type === 'credit').forEach(t => {
+        let items = t.items;
+        if (typeof items === 'string') {
+          try { items = JSON.parse(items); } catch (e) { items = []; }
+        }
+        (items || []).forEach(i => {
+          if (!freq[i.pid]) freq[i.pid] = { name: i.name, qty: 0, total: 0, count: 0, emoji: i.emoji || '📦' };
+          freq[i.pid].qty += i.qty;
+          freq[i.pid].total += i.price * i.qty;
+          freq[i.pid].count++;
+        });
+      });
+      return Object.entries(freq).map(([pid, v]) => ({ pid, ...v })).sort((a, b) => b.qty - a.qty);
+    }
+
+    // Get top products for customer recommendations
+    function getTopProductsForCustomer(custId) {
+      const custTxs = transactions.filter(t => t.custId === custId && t.type === 'credit');
+      const custItems = {};
+      custTxs.forEach(t => {
+        let items = t.items;
+        if (typeof items === 'string') {
+          try { items = JSON.parse(items); } catch (e) { items = []; }
+        }
+        (items || []).forEach(i => {
+          if (!custItems[i.pid]) custItems[i.pid] = { name: i.name, count: 0 };
+          custItems[i.pid].count++;
+        });
+      });
+      return Object.entries(custItems).sort((a, b) => b[1].count - a[1].count).slice(0, 5);
+    }
+
+    // ══════════════════════════════════════════════
+    // DASHBOARD
+    // ══════════════════════════════════════════════
+    function renderDashboard() {
+      const totalDue = customers.reduce((s, c) => s + (c.balance || 0), 0);
+      const totalCust = customers.length;
+      const overdueC = customers.filter(c => custStatus(c) === 'over');
+      const cleared = customers.filter(c => c.balance <= 0).length;
+      const monthPaid = transactions.filter(t => t.type === 'payment' && t.date.startsWith('2026-03')).reduce((s, t) => s + (t.amount || 0), 0);
+
+      // Today's Analytics (2026-03-15)
+      const today = '2026-03-15';
+      const tSales = transactions.filter(t => t.type === 'credit' && t.date === today).reduce((s, t) => s + (t.total || 0), 0);
+      const tColl = transactions.filter(t => t.type === 'payment' && t.date === today).reduce((s, t) => s + (t.amount || 0), 0);
+
+      document.getElementById('today-date-lbl').textContent = new Date(today).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+      document.getElementById('today-sales').textContent = rupee(tSales);
+      document.getElementById('today-coll').textContent = rupee(tColl);
+      document.getElementById('today-net').textContent = rupee(tSales - tColl);
+
+      document.getElementById('stat-grid').innerHTML = `
+    <div class="stat"><div class="stat-val" style="color:var(--saffron)">${rupee(totalDue)}</div><div class="stat-lbl">Total Katha Due</div><div class="stat-pill pill-a">${totalCust} customers</div></div>
+    <div class="stat"><div class="stat-val" style="color:var(--green)">${rupee(monthPaid)}</div><div class="stat-lbl">Collected March</div><div class="stat-pill pill-g">↑ This month</div></div>
+    <div class="stat"><div class="stat-val" style="color:var(--indigo)">${totalCust}</div><div class="stat-lbl">Katha Customers</div><div class="stat-pill pill-i">${cleared} settled</div></div>
+    <div class="stat"><div class="stat-val" style="color:var(--red)">${overdueC.length}</div><div class="stat-lbl">Overdue Accounts</div><div class="stat-pill pill-r">${rupee(overdueC.reduce((s, c) => s + c.balance, 0))} at risk</div></div>
+  `;
+
+      const alertCard = document.getElementById('alert-card');
+      const alertList = document.getElementById('alert-list');
+      const highBal = customers.filter(c => c.balance > 1000);
+      if (highBal.length || overdueC.length) {
+        alertCard.style.display = 'block';
+        alertList.innerHTML = [
+          ...overdueC.map(c => `<div class="alert red" style="margin-bottom:8px"><span style="font-size:20px">⚠️</span><div class="alert-txt"><strong>${c.name}</strong> is overdue by ${Math.ceil((new Date() - new Date(c.dueDate)) / 86400000)} days — ${rupee(c.balance)} pending.</div></div>`),
+          ...highBal.filter(c => custStatus(c) !== 'over').map(c => `<div class="alert" style="margin-bottom:8px"><span style="font-size:20px">💸</span><div class="alert-txt"><strong>${c.name}</strong> has a high balance of ${rupee(c.balance)}. Due ${fmtDateShort(c.dueDate)}.</div></div>`)
+        ].join('');
+      } else { alertCard.style.display = 'none'; }
+
+      const recentTx = transactions.slice().sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+      document.getElementById('activity-feed').innerHTML = recentTx.map(t => {
+        const c = customers.find(x => x.custId === t.custId) || customers.find(x => x.id === t.custId);
+        return `<div class="act-item">
+      <div class="act-dot" style="background:${t.type === 'payment' ? 'var(--green)' : 'var(--saffron)'}"></div>
+      <div class="act-text">${t.type === 'payment' ? `<strong>${c?.name || 'Customer'}</strong> paid ${rupee(t.amount)}` : `Katha added for <strong>${c?.name || 'Customer'}</strong> — ${rupee(t.total)}`}</div>
+      <div class="act-time">${fmtDateShort(t.date)}</div>
+    </div>`;
+      }).join('') || '<div class="empty"><div class="empty-icon">📋</div><p>No activity yet</p></div>';
+
+      // Top Products Intelligence
+      const topProds = getProductFrequency().slice(0, 5);
+      document.getElementById('top-products').innerHTML = topProds.map((p, i) => `
+    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);align-items:center">
+      <span style="flex:1"><strong>${p.emoji} ${p.name}</strong><br><small style="color:var(--muted)">${p.qty} units kathaed</small></span>
+      <div style="text-align:right"><strong style="color:var(--saffron)">${rupee(p.total)}</strong></div>
+    </div>
+  `).join('') || '<p style="text-align:center;color:var(--muted)">No transaction data yet</p>';
+
+      const dueThisMonth = customers.filter(c => c.balance > 0).sort((a, b) => b.balance - a.balance);
+      document.getElementById('due-count').textContent = `${dueThisMonth.length} accounts`;
+      document.getElementById('due-list').innerHTML = dueThisMonth.slice(0, 5).map(c => {
+        const sl = statusLabel(c);
+        return `<div class="ci" onclick="openDetail('${c.id}')">
+      <div class="cav" style="background:${c.bg};color:${c.color}">${c.initials}</div>
+      <div class="cinfo"><div class="cname">${c.name}</div><div class="cmeta">${c.phone}</div><span class="cbadge ${sl.cls}">${sl.txt}</span></div>
+      <div class="camt"><div class="camtv" style="color:${c.balance > 1000 ? 'var(--red)' : 'var(--saffron-d)'}">${rupee(c.balance)}</div></div>
+    </div>`;
+      }).join('') || '<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">✅ No pending dues!</div>';
+    }
+
+    function handleDashSearch() {
+      const q = document.getElementById('dash-search').value.toLowerCase().trim();
+      const resEl = document.getElementById('dash-search-results');
+
+      if (!q) {
+        resEl.innerHTML = '';
+        resEl.style.display = 'none';
+        return;
+      }
+
+      const matches = customers.filter(c =>
+        c.name.toLowerCase().includes(q) ||
+        c.phone.includes(q) ||
+        c.id.toLowerCase().includes(q)
+      ).slice(0, 5);
+
+      if (!matches.length) {
+        resEl.innerHTML = '<div class="card card-sm" style="color:var(--muted); font-size:12px; text-align:center">No matches found</div>';
+        resEl.style.display = 'block';
+        return;
+      }
+
+      resEl.innerHTML = `
+    <div class="card card-sm" style="padding:10px 14px">
+      <div class="caption" style="margin-bottom:8px">Search Results</div>
+      ${matches.map(c => {
+        return `
+          <div class="ci" onclick="clearDashSearch(); openDetail('${c.id}')">
+            <div class="cav" style="width:32px; height:32px; font-size:11px; background:${c.bg}; color:${c.color}">${c.initials}</div>
+            <div class="cinfo">
+              <div class="cname" style="font-size:13px">${c.name}</div>
+              <div class="cmeta" style="font-size:11px">${c.id}</div>
+            </div>
+            <div class="camt">
+              <div class="camtv" style="font-size:13px; color:${c.balance > 1000 ? 'var(--red)' : 'var(--saffron-d)'}">${rupee(c.balance)}</div>
+            </div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+      resEl.style.display = 'block';
+    }
+
+    function clearDashSearch() {
+      document.getElementById('dash-search').value = '';
+      document.getElementById('dash-search-results').style.display = 'none';
+    }
+
+    // ══════════════════════════════════════════════
+    // CUSTOMERS
+    // ══════════════════════════════════════════════
+    function setCustFilter(f, btn) {
+      custFilter = f;
+      document.querySelectorAll('#cust-filter-seg .seg-btn').forEach(b => b.classList.remove('on'));
+      btn.classList.add('on');
+      renderCustomerList();
+    }
+    function renderCustomerList() {
+      const q = (document.getElementById('cust-search')?.value || '').toLowerCase();
+      let list = customers.filter(c => {
+        const match = !q || (c.name.toLowerCase().includes(q) || c.phone.includes(q) || c.id.toLowerCase().includes(q));
+        if (!match) return false;
+        if (custFilter === 'all') return true;
+        if (custFilter === 'due') return custStatus(c) === 'due' || custStatus(c) === 'warn';
+        if (custFilter === 'overdue') return custStatus(c) === 'over';
+        if (custFilter === 'clear') return custStatus(c) === 'clear';
+        return true;
+      });
+      const el = document.getElementById('cust-list');
+      if (!list.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">👥</div><h3>No customers found</h3><p>Try a different search or filter.</p></div>'; return; }
+      el.innerHTML = list.map(c => {
+        const sl = statusLabel(c);
+        return `<div class="ci" onclick="openDetail('${c.id}')">
+      <div class="cav" style="background:${c.bg};color:${c.color}">${c.initials}</div>
+      <div class="cinfo">
+        <div class="cname">${c.name}</div>
+        <div class="cmeta">${c.id} · ${c.cycle}</div>
+        <span class="cbadge ${sl.cls}">${sl.txt}</span>
+        ${c.balance > c.limit ? '<span class="cbadge" style="background:var(--red-l);color:var(--red);margin-left:4px">Over Limit</span>' : ''}
+      </div>
+      <div class="camt">
+        <div class="camtv" style="color:${c.balance > 1000 ? 'var(--red)' : 'var(--saffron-d)'}">${rupee(c.balance)}</div>
+        <div class="caption" style="margin-top:2px">${c.cycle}</div>
+      </div>
+    </div>`;
+      }).join('');
+    }
+    function addCustomer() {
+      try {
+        const name = document.getElementById('nc-name').value.trim();
+        const phone = document.getElementById('nc-phone').value.trim();
+        const limit = parseInt(document.getElementById('nc-limit').value) || 1500;
+
+        // Validate inputs
+        if (!name || !phone) { toast('⚠️ Name and phone are required'); return; }
+        if (!Validators.name(name)) { toast('⚠️ Name must be 2-100 characters'); return; }
+        if (!Validators.phone(phone)) { toast('⚠️ Phone must be 10 digits'); return; }
+        if (!Validators.limit(limit)) { toast('⚠️ Limit must be 1-10,00,000'); return; }
+        if (customers.find(c => c.phone === phone.replace(/\D/g, '').slice(-10))) { toast('⚠️ Customer with this phone already exists'); return; }
+
+        // Debounce to prevent duplicate submissions
+        if (OperationDebouncer.isPending('add-customer')) { toast('⚠️ Please wait...'); return; }
+
+        OperationDebouncer.execute('add-customer', async () => {
+          lastKbId++;
+          const color = custColor(name);
+          const bg = custBg(color);
+          const inits = name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+          const now = new Date().toISOString().split('T')[0];
+          // Calculate due date as 30 days from now
+          const dueDate = new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0];
+
+          const c = {
+            id: `KB-${lastKbId}`,
+            name: Sanitizers.name(name),
+            phone: Sanitizers.phone(phone),
+            addr: Sanitizers.text(document.getElementById('nc-addr').value || ''),
+            cycle: document.getElementById('nc-cycle').value,
+            limit,
+            balance: 0, initials: inits, color, bg,
+            joinDate: now, lastTx: now, dueDate
+          };
+          customers.push(c); save();
+
+          // Sync to backend asynchronously
+          if (isOnline) {
+            SyncManager.queue(async () => {
+              const result = await apiCall('/api/customers', 'POST', c);
+              if (result) Logger.info('✅ Customer synced to backend', c.id);
+            });
+          }
+
+          closeModal('modal-add-cust');
+          toast(`✅ ${name} registered as ${c.id}`);
+          renderCustomerList();
+
+          // Clear form
+          document.getElementById('nc-name').value = '';
+          document.getElementById('nc-phone').value = '';
+          document.getElementById('nc-addr').value = '';
+          document.getElementById('nc-limit').value = '1500';
+        });
+      } catch (err) {
+        Logger.error('Error adding customer', err);
+        toast('❌ Error: ' + err.message);
+      }
+      ['nc-name', 'nc-phone', 'nc-addr'].forEach(i => document.getElementById(i).value = '');
+      renderScanPickers();
+    }
+
+    // ══════════════════════════════════════════════
+    // PRODUCTS
+    // ══════════════════════════════════════════════
+    function renderProductList() {
+      const q = (document.getElementById('prod-search2')?.value || '').toLowerCase();
+      const list = products.filter(p => !q || p.name.toLowerCase().includes(q) || p.barcode?.includes(q));
+      const el = document.getElementById('product-list');
+      if (!list.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">🛒</div><h3>No products found</h3><p>Add products to your catalog.</p></div>'; return; }
+      el.innerHTML = list.map(p => `
+    <div class="prod-item">
+      <div class="prod-emoji">${p.emoji}</div>
+      <div class="prod-info">
+        <div class="prod-name">${p.name}</div>
+        <div class="prod-meta">Barcode: ${p.barcode || '—'}</div>
+      </div>
+      <div class="prod-right">
+        <div class="prod-price">${rupee(p.price)}<span style="font-size:11px;font-weight:400;color:var(--muted)">/${p.unit}</span></div>
+        <div class="prod-stock ${p.stock < 20 ? 'low-stock' : ''}">${p.stock < 20 ? '⚠️ ' : ''} ${p.stock} in stock</div>
+      </div>
+    </div>
+  `).join('');
+    }
+    function addProduct() {
+      try {
+        const name = document.getElementById('np-name').value.trim();
+        const priceInput = document.getElementById('np-price').value.trim();
+        const price = parseFloat(priceInput);
+
+        // Validate inputs
+        if (!name || !priceInput) { toast('⚠️ Name and price are required'); return; }
+        if (!Validators.name(name)) { toast('⚠️ Name must be 2-100 characters'); return; }
+        if (!Validators.amount(price)) { toast('⚠️ Price must be valid (0-9,99,999)'); return; }
+
+        // Debounce to prevent duplicate submissions
+        if (OperationDebouncer.isPending('add-product')) { toast('⚠️ Please wait...'); return; }
+
+        OperationDebouncer.execute('add-product', async () => {
+          lastProdId++;
+          const id = 'P' + String(lastProdId).padStart(3, '0');
+          const prod = {
+            id,
+            name: Sanitizers.name(name),
+            emoji: document.getElementById('np-emoji').value || '🛒',
+            price: Sanitizers.amount(price),
+            unit: document.getElementById('np-unit').value || 'unit',
+            barcode: Sanitizers.text(document.getElementById('np-barcode').value || ''),
+            stock: parseInt(document.getElementById('np-stock').value) || 100
+          };
+
+          if (prod.barcode && products.find(p => p.barcode === prod.barcode)) {
+            toast('⚠️ Barcode already exists'); return;
+          }
+
+          products.push(prod);
+          save();
+
+          // Sync to backend
+          if (isOnline) {
+            SyncManager.queue(async () => {
+              const result = await apiCall('/api/products', 'POST', prod);
+              if (result) Logger.info('✅ Product synced to backend', prod.id);
+            });
+          }
+
+          closeModal('modal-add-prod');
+          toast(`✅ ${name} added to catalog`);
+          renderProductList();
+
+          // Clear form
+          document.getElementById('np-name').value = '';
+          document.getElementById('np-price').value = '';
+          document.getElementById('np-emoji').value = '🛒';
+          document.getElementById('np-unit').value = 'unit';
+          document.getElementById('np-barcode').value = '';
+          document.getElementById('np-stock').value = '100';
+        });
+      } catch (err) {
+        Logger.error('Error adding product', err);
+        toast('❌ Error: ' + err.message);
+      }
+      renderProductList(); renderCatalog();
+      ['np-name', 'np-barcode'].forEach(i => document.getElementById(i).value = '');
+    }
+
+    // ══════════════════════════════════════════════
+    // SCAN & CATALOG
+    // ══════════════════════════════════════════════
+    function renderScanPickers() {
+      const html = customers.map(c => `<div class="cpill ${selectedScanCust?.id === c.id ? 'act' : ''}" onclick="pickScanCust('${c.id}')">${c.name.split(' ')[0]}</div>`).join('');
+      ['scan-cpick', 'scan-cpick2'].forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = html; });
+      const html2 = customers.map(c => `<div class="cpill ${selectedPayCust?.id === c.id ? 'act' : ''}" onclick="pickPayCust('${c.id}')">${c.name.split(' ')[0]}</div>`).join('');
+      const pp = document.getElementById('pay-cpick'); if (pp) pp.innerHTML = html2;
+      if (!selectedScanCust && customers.length) pickScanCust(customers[0].id);
+      if (!selectedPayCust && customers.length) pickPayCust(customers[0].id);
+    }
+    function pickScanCust(id) {
+      selectedScanCust = customers.find(c => c.id === id);
+      renderScanPickers();
+      const el = document.getElementById('scan-cust-bal');
+      if (el && selectedScanCust) el.innerHTML = `<span style="color:var(--saffron-d);font-weight:600">${selectedScanCust.name}</span> — Current balance: <strong style="color:var(--saffron)">${rupee(selectedScanCust.balance)}</strong>`;
+
+      // Show customer's favorite products
+      const recEl = document.getElementById('scan-recommendations');
+      if (recEl) {
+        const topItems = getTopProductsForCustomer(id).slice(0, 3);
+        if (topItems.length > 0) {
+          recEl.innerHTML = `<div><strong>💡 Frequently buys:</strong></div><div>${topItems.map(([pid, item]) => {
+            const p = products.find(x => x.id === pid);
+            return `<span style="display:inline-block;background:rgba(59,77,184,.15);padding:3px 6px;border-radius:4px;margin-right:4px;margin-top:4px">${p?.emoji} ${p?.name.split(' ')[0]}</span>`;
+          }).join('')}</div>`;
+          recEl.style.display = 'block';
+        } else {
+          recEl.style.display = 'none';
+        }
+      }
+    }
+    function pickPayCust(id) {
+      selectedPayCust = customers.find(c => c.id === id);
+      renderScanPickers();
+      const el = document.getElementById('pay-cust-info');
+      if (el && selectedPayCust) el.innerHTML = `<div style="background:var(--indigo-l);border-radius:10px;padding:12px 14px"><div style="font-size:12px;color:var(--muted)">Outstanding balance</div><div style="font-family:'Baloo 2',sans-serif;font-size:24px;font-weight:800;color:var(--indigo)">${rupee(selectedPayCust.balance)}</div><div style="font-size:12px;color:var(--muted);margin-top:2px">${selectedPayCust.cycle} cycle · Due ${fmtDate(selectedPayCust.dueDate)}</div></div>`;
+    }
+    function setScanTab(tab, btn) {
+      scanTab = tab;
+      ['catalog', 'scanner', 'payment'].forEach(t => { const el = document.getElementById('stab-' + t); if (el) el.style.display = t === tab ? 'block' : 'none'; });
+      btn.closest('.tabs').querySelectorAll('.tab').forEach(b => b.classList.remove('on'));
+      btn.classList.add('on');
+      if (tab !== 'scanner' && scannerActive) stopScanner();
+    }
+    function renderCatalog() {
+      const q = (document.getElementById('prod-search')?.value || '').toLowerCase();
+      const list = products.filter(p => !q || p.name.toLowerCase().includes(q));
+      const el = document.getElementById('catalog-grid'); if (!el) return;
+      el.innerHTML = list.map(p => {
+        const qty = cart[p.id] || 0;
+        return `<div class="cat-item ${qty ? 'sel' : ''}" id="ci-${p.id}" onclick="addToCart('${p.id}')">
+      <span class="cat-emoji">${p.emoji}</span>
+      <div class="cat-name">${p.name.length > 14 ? p.name.substring(0, 13) + '…' : p.name}</div>
+      <div class="cat-price">${rupee(p.price)}</div>
+      <div class="cat-qty-badge ${qty ? 'v' : ''}" id="iqty-${p.id}">${qty}</div>
+    </div>`;
+      }).join('');
+    }
+    function addToCart(pid) {
+      cart[pid] = (cart[pid] || 0) + 1;
+      renderCatalog(); renderCart();
+      toast(`Added ${products.find(p => p.id === pid)?.name.split(' ').slice(0, 2).join(' ')}`);
+    }
+    function changeQty(pid, d) {
+      cart[pid] = (cart[pid] || 0) + d;
+      if (cart[pid] <= 0) delete cart[pid];
+      renderCatalog(); renderCart();
+    }
+    function clearCart() { cart = {}; renderCatalog(); renderCart(); }
+    function renderCart() {
+      const el = document.getElementById('cart-area'); if (!el) return;
+      const keys = Object.keys(cart);
+      if (!keys.length) { el.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:13px;padding:10px 0">No items added yet</div>'; return; }
+      let total = 0;
+      let rows = keys.map(id => {
+        const p = products.find(x => x.id === id); if (!p) return '';
+        const sub = p.price * cart[id]; total += sub;
+        return `<div class="cart-row">
+      <span>${p.emoji} ${p.name.split(' ').slice(0, 2).join(' ')}</span>
+      <div class="qctrl">
+        <button class="qbtn" onclick="changeQty('${id}',-1)">−</button>
+        <span style="font-size:13px;font-weight:700;min-width:16px;text-align:center">${cart[id]}</span>
+        <button class="qbtn" onclick="changeQty('${id}',1)">+</button>
+      </div>
+      <span style="min-width:54px;text-align:right;font-size:13px">${rupee(sub)}</span>
+    </div>`;
+      });
+      rows.push(`<div class="cart-row"><span>Total</span><span></span><span style="color:var(--saffron-d)">${rupee(total)}</span></div>`);
+      el.innerHTML = rows.join('');
+    }
+    function confirmKatha() {
+      const keys = Object.keys(cart);
+      if (!keys.length) { toast('⚠️ Add items first'); return; }
+      if (!selectedScanCust) { toast('⚠️ Select a customer'); return; }
+      let total = 0;
+      const rows = keys.map(id => {
+        const p = products.find(x => x.id === id);
+        const sub = p.price * cart[id]; total += sub;
+        return `<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px">
+      <span>${p.emoji} ${p.name} ×${cart[id]}</span><span style="font-weight:700">${rupee(sub)}</span>
+    </div>`;
+      });
+      const newBalance = selectedScanCust.balance + total;
+      const over = newBalance > selectedScanCust.limit;
+
+      if (over) {
+        pendingKathaOverride = { custId: selectedScanCust.id, items: keys.map(id => { const p = products.find(x => x.id === id); return { pid: p.id, name: p.name, qty: cart[id], price: p.price }; }), total: total, notes: document.getElementById('entry-notes')?.value || '' };
+        const excess = newBalance - selectedScanCust.limit;
+        document.getElementById('limit-alert-msg').innerHTML = `
+      <strong>${selectedScanCust.name}</strong> will exceed credit limit.<br><br>
+      Current: ${rupee(selectedScanCust.balance)}<br>
+      Adding: ${rupee(total)}<br>
+      <span style="font-weight:700">New Total: ${rupee(newBalance)} (Limit: ${rupee(selectedScanCust.limit)})</span><br><br>
+      Excess: <strong style="color:var(--red)">${rupee(excess)}</strong>
+    `;
+        openModal('modal-limit-override');
+        return;
+      }
+
+      document.getElementById('confirm-summary').innerHTML = `
+    <div style="background:var(--indigo-l);border-radius:12px;padding:12px 14px;margin-bottom:14px">
+      <div style="font-size:12px;color:var(--muted)">Adding katha to</div>
+      <div style="font-family:'Baloo 2',sans-serif;font-size:17px;font-weight:800">${selectedScanCust.name}</div>
+      <div style="font-size:12px;color:var(--muted)">Current balance: ${rupee(selectedScanCust.balance)} / Limit: ${rupee(selectedScanCust.limit)}</div>
+    </div>
+    ${rows.join('')}
+    <div style="display:flex;justify-content:space-between;padding:10px 0;font-size:15px;font-weight:800;color:var(--saffron-d)"><span>Total Adding</span><span>${rupee(total)}</span></div>
+  `;
+      openModal('modal-confirm-entry');
+    }
+    function finalizeKatha() {
+      const keys = Object.keys(cart);
+      let total = 0;
+      const items = keys.map(id => {
+        const p = products.find(x => x.id === id);
+        const sub = p.price * cart[id]; total += sub;
+        return { pid: p.id, name: p.name, qty: cart[id], price: p.price };
+      });
+      lastTxId++;
+      const tx = { id: 'TX' + String(lastTxId).padStart(3, '0'), custId: selectedScanCust.id, type: 'credit', items, total, date: new Date().toISOString().split('T')[0], notes: document.getElementById('entry-notes')?.value || '' };
+      transactions.push(tx);
+      const ci = customers.findIndex(c => c.id === selectedScanCust.id);
+      customers[ci].balance = (customers[ci].balance || 0) + total;
+      customers[ci].lastTx = tx.date;
+      selectedScanCust = customers[ci];
+      save(); clearCart(); closeModal('modal-confirm-entry');
+
+      // Sync transaction and customer to backend
+      if (isOnline) {
+        Promise.all([
+          apiCall('/api/transactions', 'POST', tx),
+          apiCall('/api/customers', 'PUT', selectedScanCust)
+        ]).then(results => {
+          if (results[0]) console.log('✅ Transaction synced to backend');
+        });
+      }
+
+      toast(`✅ ₹${total} katha added for ${selectedScanCust.name}`);
+      renderScanPickers();
+    }
+    function confirmKathaOverride() {
+      const reason = document.getElementById('override-reason').value;
+      if (!reason.trim()) { toast('⚠️ Please provide a reason for override'); return; }
+      if (!pendingKathaOverride) return;
+      closeModal('modal-limit-override');
+      lastTxId++;
+      const tx = { id: 'TX' + String(lastTxId).padStart(3, '0'), custId: pendingKathaOverride.custId, type: 'credit', items: pendingKathaOverride.items, total: pendingKathaOverride.total, date: new Date().toISOString().split('T')[0], notes: pendingKathaOverride.notes + '[OVERRIDE: ' + reason + ']' };
+      transactions.push(tx);
+      const ci = customers.findIndex(c => c.id === pendingKathaOverride.custId);
+      customers[ci].balance = (customers[ci].balance || 0) + pendingKathaOverride.total;
+      customers[ci].lastTx = tx.date;
+      selectedScanCust = customers[ci];
+      save(); clearCart();
+
+      // Sync transaction and customer to backend
+      if (isOnline) {
+        Promise.all([
+          apiCall('/api/transactions', 'POST', tx),
+          apiCall('/api/customers', 'PUT', selectedScanCust)
+        ]).then(results => {
+          if (results[0]) console.log('✅ Override transaction synced to backend');
+        });
+      }
+
+      document.getElementById('override-reason').value = '';
+      toast(`✅ Override approved! ₹${pendingKathaOverride.total} added for ${selectedScanCust.name}`);
+      renderScanPickers(); pendingKathaOverride = null;
+    }
+    function recordPayment() {
+      try {
+        const amtInput = document.getElementById('pay-amount').value.trim();
+        const amt = parseFloat(amtInput);
+
+        // Validate inputs
+        if (!amtInput || !Validators.amount(amt)) { toast('⚠️ Enter a valid amount (1-9,99,999)'); return; }
+        if (!selectedPayCust) { toast('⚠️ Select a customer'); return; }
+        if (amt > selectedPayCust.balance) {
+          if (!confirm(`Amount (₹${amt}) exceeds balance (₹${selectedPayCust.balance}). Overpay anyway?`)) {
+            return;
+          }
+        }
+
+        // Debounce payment recording
+        if (OperationDebouncer.isPending('record-payment')) { toast('⚠️ Processing payment...'); return; }
+
+        OperationDebouncer.execute('record-payment', async () => {
+          lastTxId++;
+          const tx = {
+            id: 'TX' + String(lastTxId).padStart(3, '0'),
+            custId: selectedPayCust.id,
+            type: 'payment',
+            amount: Sanitizers.amount(amt),
+            method: document.getElementById('pay-method').value,
+            date: new Date().toISOString().split('T')[0],
+            notes: Sanitizers.text(document.getElementById('pay-notes').value || '')
+          };
+          transactions.push(tx);
+          const ci = customers.findIndex(c => c.id === selectedPayCust.id);
+          if (ci === -1) {
+            Logger.error('Customer not found for payment');
+            toast('❌ Customer not found');
+            return;
+          }
+
+          customers[ci].balance = Math.max(0, (customers[ci].balance || 0) - tx.amount);
+          customers[ci].lastTx = tx.date;
+          selectedPayCust = customers[ci];
+          save();
+
+          // Sync transaction and customer to backend
+          if (isOnline) {
+            SyncManager.queue(async () => {
+              await Promise.all([
+                apiCall('/api/transactions', 'POST', tx),
+                apiCall('/api/customers', 'PUT', selectedPayCust)
+              ]).then(results => {
+                if (results[0]) Logger.info('✅ Payment synced to backend', tx.id);
+              });
+            });
+          }
+
+          document.getElementById('pay-amount').value = '';
+          document.getElementById('pay-notes').value = '';
+          toast(`✅ Payment of ${rupee(tx.amount)} recorded for ${selectedPayCust.name}`);
+          renderScanPickers(); renderDashboard();
+        });
+      } catch (err) {
+        Logger.error('Error recording payment', err);
+        toast('❌ Error: ' + err.message);
+      }
+    }
+
+    // ══════════════════════════════════════════════
+    // BARCODE SCANNER - Real ZXing Integration
+    // ══════════════════════════════════════════════
+    let codeReader = null;
+    let qrScannerActive = false;
+    let qrScanStream = null;
+    async function toggleScanner() {
+      if (scannerActive) { stopScanner(); return; }
+      const btn = document.getElementById('scan-toggle-btn');
+      btn.textContent = 'Stop Camera';
+      try {
+        const video = document.getElementById('scanner-video');
+        codeReader = new ZXing.BrowserMultiFormatReader();
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } } });
+        scanStream = stream;
+        video.srcObject = stream;
+        scannerActive = true;
+        document.getElementById('scan-status').textContent = '🔍 Scanning for barcodes…';
+        scanBarcodeFrame();
+      } catch (e) {
+        toast('⚠️ Camera permission denied. Tap catalog items to add manually.');
+        btn.textContent = 'Start Camera';
+        scannerActive = false;
+      }
+    }
+    function stopScanner() {
+      if (scanStream) scanStream.getTracks().forEach(t => t.stop());
+      scanStream = null; scannerActive = false;
+      document.getElementById('scanner-video').srcObject = null;
+      document.getElementById('scan-toggle-btn').textContent = 'Start Camera';
+      document.getElementById('scan-status').textContent = 'Ready to scan barcode';
+      if (codeReader) { try { codeReader.reset(); } catch (e) { } }
+      codeReader = null;
+    }
+    function scanBarcodeFrame() {
+      if (!scannerActive) return;
+      const video = document.getElementById('scanner-video');
+      if (!video.videoWidth || !video.videoHeight) {
+        requestAnimationFrame(scanBarcodeFrame); return;
+      }
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d'); ctx.drawImage(video, 0, 0);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const luminanceSource = new ZXing.RGBLuminanceSource(imageData.data, imageData.width, imageData.height);
+        const binarizer = new ZXing.HybridBinarizer(luminanceSource);
+        const bitmap = new ZXing.BinaryBitmap(binarizer);
+        const reader = new ZXing.MultiFormatReader();
+        try {
+          const result = reader.decode(bitmap);
+          if (result) {
+            const barcode = result.text;
+            const prod = products.find(p => p.barcode === barcode);
+            if (prod) {
+              document.getElementById('scan-emoji').textContent = prod.emoji;
+              document.getElementById('scan-name').textContent = prod.name;
+              document.getElementById('scan-price').textContent = rupee(prod.price) + ' / ' + prod.unit;
+              document.getElementById('scan-result').classList.add('v');
+              scannedProduct = prod;
+              document.getElementById('scan-status').textContent = '✅ Scanned: ' + prod.name;
+              toast('📷 Scanned: ' + prod.name);
+              stopScanner();
+              return;
+            } else {
+              document.getElementById('scan-status').textContent = '❌ Barcode not in catalog: ' + barcode;
+              setTimeout(() => {
+                if (scannerActive) {
+                  document.getElementById('scan-status').textContent = '🔍 Scanning…';
+                  requestAnimationFrame(scanBarcodeFrame);
+                }
+              }, 1500);
+              return;
+            }
+          }
+        } catch (e) { }
+        requestAnimationFrame(scanBarcodeFrame);
+      } catch (e) {
+        requestAnimationFrame(scanBarcodeFrame);
+      }
+    }
+
+    // ══════════════════════════════════════════════
+    // QR CUSTOMER SCANNER
+    // ══════════════════════════════════════════════
+    async function toggleQRScanner() {
+      if (qrScannerActive) { stopQRScanner(); return; }
+      const btn = document.getElementById('qr-scan-toggle-btn');
+      btn.textContent = 'Stop Camera';
+      try {
+        const video = document.getElementById('qr-scanner-video');
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } } });
+        qrScanStream = stream;
+        video.srcObject = stream;
+        qrScannerActive = true;
+        document.getElementById('qr-scan-status').textContent = '🔍 Scanning QR codes…';
+        scanQRFrame();
+      } catch (e) {
+        toast('⚠️ Camera permission denied');
+        btn.textContent = 'Start Camera';
+        qrScannerActive = false;
+      }
+    }
+    function stopQRScanner() {
+      if (qrScanStream) qrScanStream.getTracks().forEach(t => t.stop());
+      qrScanStream = null; qrScannerActive = false;
+      document.getElementById('qr-scanner-video').srcObject = null;
+      document.getElementById('qr-scan-toggle-btn').textContent = 'Start Camera';
+      document.getElementById('qr-scan-status').textContent = 'Ready to scan customer QR';
+      if (codeReader) { try { codeReader.reset(); } catch (e) { } }
+    }
+    function scanQRFrame() {
+      if (!qrScannerActive) return;
+      const video = document.getElementById('qr-scanner-video');
+      if (!video.videoWidth || !video.videoHeight) {
+        requestAnimationFrame(scanQRFrame); return;
+      }
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d'); ctx.drawImage(video, 0, 0);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const luminanceSource = new ZXing.RGBLuminanceSource(imageData.data, imageData.width, imageData.height);
+        const binarizer = new ZXing.HybridBinarizer(luminanceSource);
+        const bitmap = new ZXing.BinaryBitmap(binarizer);
+        const reader = new ZXing.MultiFormatReader();
+        try {
+          const result = reader.decode(bitmap);
+          if (result) {
+            try {
+              const qrData = JSON.parse(result.text);
+              if (qrData.id && customers.find(c => c.id === qrData.id)) {
+                document.getElementById('qr-scan-status').textContent = '✅ Found: ' + qrData.name;
+                stopQRScanner();
+                closeModal('modal-qr-scanner');
+                pickScanCust(qrData.id);
+                navTo('pg-scan');
+                toast(`✅ Loaded ${qrData.name}'s account`);
+                return;
+              }
+            } catch (e) { }
+            // Try treating as plain customer ID
+            if (customers.find(c => c.id === result.text)) {
+              const c = customers.find(x => x.id === result.text);
+              document.getElementById('qr-scan-status').textContent = '✅ Found: ' + c.name;
+              stopQRScanner();
+              closeModal('modal-qr-scanner');
+              pickScanCust(c.id);
+              navTo('pg-scan');
+              toast(`✅ Loaded ${c.name}'s account`);
+              return;
+            }
+          }
+        } catch (e) { }
+        requestAnimationFrame(scanQRFrame);
+      } catch (e) {
+        requestAnimationFrame(scanQRFrame);
+      }
+    }
+    function openQRScannerModal() {
+      openModal('modal-qr-scanner');
+      setTimeout(toggleQRScanner, 300);
+    }
+    function closeQRScanner(mid) {
+      stopQRScanner();
+      closeModal(mid);
+    }
+    function addScannedToCart() {
+      if (!scannedProduct) return;
+      addToCart(scannedProduct.id);
+      setScanTab('catalog', document.querySelector('.tab.on') || document.querySelectorAll('#pg-scan .tab')[0]);
+      navTo('pg-scan');
+      document.querySelectorAll('#pg-scan .tab')[0].click();
+      toast('Item added to cart');
+    }
+
+    // ══════════════════════════════════════════════
+    // WHATSAPP INTEGRATION
+    // ══════════════════════════════════════════════
+    function sendWhatsAppReminder(phone, name, balance) {
+      let msg;
+      if (currentLang === 'te') {
+        msg = encodeURIComponent(`నమస్కారం ${name}!\n\nమీ చెల్లవలసిన రాశి: ₹${balance}\n\nకృపయా త్వరగా చెల్లించండి। ధన్యవాదాలు!`);
+      } else {
+        msg = encodeURIComponent(`नमस्ते ${name}!\n\nआपकी बकाया राशि: ₹${balance}\n\nकृपया जल्यवश भुगतान करें। धन्यवाद!`);
+      }
+      const url = `https://wa.me/91${phone.slice(-10)}?text=${msg}`;
+      window.open(url, '_blank');
+      toast(t('whatsappOpenFor') + ' ' + name);
+    }
+    async function sendSMSReminder(custId) {
+      try {
+        const res = await fetch(`/api/reminders/sms/${custId}`);
+        const data = await res.json();
+        if (data.smsUrl) {
+          window.location.href = data.smsUrl;
+          toast('📱 Opening SMS app...');
+        } else {
+          toast('❌ Failed to generate SMS');
+        }
+      } catch (e) {
+        toast('❌ Error: ' + e.message);
+      }
+    }
+
+    // ══════════════════════════════════════════════
+    // DATA EXPORT
+    // ══════════════════════════════════════════════
+    function exportCustomerData(custId) {
+      const c = customers.find(x => x.id === custId);
+      if (!c) return;
+      const txs = custTx(custId);
+      const csv = 'Date,Type,Description,Amount (₹),Balance,Method\n' + txs.map(t => {
+        if (t.type === 'credit') {
+          const items = (t.items || []).map(i => i.name).join('; ');
+          return `${t.date},Credit,${items},${t.total},,${t.notes || ''}`;
+        } else {
+          return `${t.date},Payment,${t.notes || 'Received'},${t.amount},,${t.method}`;
+        }
+      }).join('\n');
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `${c.name}_${c.id}_ledger.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast(`✅ Exported ${c.name}'s ledger as CSV`);
+    }
+    function exportAllData() {
+      const data = { customers, products, transactions, exportDate: new Date().toISOString() };
+      const csv = 'KAATHABOOK BACKUP\n' + new Date().toLocaleDateString('en-IN') + '\n\n' + JSON.stringify(data, null, 2);
+      const blob = new Blob([csv], { type: 'text/plain;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `kaathabook_backup_${new Date().toISOString().split('T')[0]}.json`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast(`✅ Full backup exported`);
+    }
+
+    // ══════════════════════════════════════════════
+    // CUSTOMER DETAIL
+    // ══════════════════════════════════════════════
+    function renderDetail() {
+      const c = customers.find(x => x.id === detailCustId);
+      if (!c) return;
+      const s = custStatus(c);
+      const balClass = s === 'clear' ? 'ok' : s === 'over' ? 'over' : 'due';
+      const whatsappText = encodeURIComponent(`నమస్కారం ${c.name}!\n\nమీ చెల్లవలసిన రాశి: ₹${c.balance}\nనడుచుకోనే తేదీ: ${fmtDate(c.dueDate)}\n\nకృపయా త్వరగా చెల్లించండి। ధన్యవాదాలు!`);
+      document.getElementById('detail-hero-wrap').innerHTML = `
+    <div class="detail-hero">
+      <div class="detail-av" style="background:${c.bg};color:${c.color}">${c.initials}</div>
+      <div class="detail-info">
+        <div class="detail-name">${c.name}</div>
+        <div class="detail-sub">${c.id} · ${c.phone}</div>
+        <div class="detail-sub" style="margin-top:2px">${c.addr}</div>
+        <div class="detail-bal ${balClass}">${rupee(c.balance)}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-size:11px;opacity:.7">Limit</div>
+        <div style="font-family:'Baloo 2',sans-serif;font-size:16px;font-weight:700">${rupee(c.limit)}</div>
+        <div style="font-size:11px;opacity:.7;margin-top:6px">Cycle</div>
+        <div style="font-size:13px;font-weight:600">${c.cycle}</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+      ${c.balance > 0 ? `<button class="btn btn-pri btn-sm" style="width:auto" onclick="sendSMSReminder('${c.id}')"><svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg> SMS Reminder</button>` : ''}
+      ${c.balance > 0 ? `<button class="btn btn-sec btn-sm" style="width:auto" onclick="sendWhatsAppReminder('${c.phone}','${c.name}',${c.balance})"><svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8" viewBox="0 0 24 24"><path d="M21.5 2H2.5C1.12 2 0 3.12 0 4.5v15C0 20.88 1.12 22 2.5 22h19C22.88 22 24 20.88 24 19.5v-15C24 3.12 22.88 2 21.5 2z"/></svg> WhatsApp</button>` : ''} 
+      <button class="btn btn-out btn-sm" style="width:auto" onclick="exportCustomerData('${c.id}')"><svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> Export</button>
+    </div>
+  `;
+      setDetailTab(detailTab, document.querySelector('#detail-tabs .tab.on'));
+    }
+    function setDetailTab(tab, btn) {
+      detailTab = tab;
+      ['katha', 'history', 'qr'].forEach(t => { const el = document.getElementById('dtab-' + t); if (el) el.style.display = t === tab ? 'block' : 'none'; });
+      if (btn) { btn.closest('.tabs').querySelectorAll('.tab').forEach(b => b.classList.remove('on')); btn.classList.add('on'); }
+      const c = customers.find(x => x.id === detailCustId); if (!c) return;
+      const txs = custTx(c.id);
+      if (tab === 'katha') {
+        const credits = txs.filter(t => t.type === 'credit');
+        const el = document.getElementById('dtab-katha');
+        if (!credits.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">🛒</div><h3>No katha entries yet</h3><p>Go to Scan & Add to record items.</p></div>'; return; }
+        el.innerHTML = `<div class="card card-sm">${credits.map(t => `
+      <div style="padding:12px 0;border-bottom:1px solid var(--border)">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+          <div style="font-weight:700;font-size:13px">${fmtDate(t.date)}</div>
+          <div style="font-weight:800;color:var(--saffron-d)">${rupee(t.total)}</div>
+        </div>
+        ${t.notes ? `<div style="font-size:12px;color:var(--muted);margin-bottom:6px">📝 ${t.notes}</div>` : ''}
+        ${(t.items || []).map(i => `<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;color:var(--muted)"><span>${i.name} ×${i.qty}</span><span>${rupee(i.price * i.qty)}</span></div>`).join('')}
+      </div>
+    `).join('')}</div>`;
+      }
+      if (tab === 'history') {
+        const el = document.getElementById('dtab-history');
+        if (!txs.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">📋</div><h3>No transactions</h3></div>'; return; }
+        el.innerHTML = `<div class="card card-sm">${txs.map(t => `
+      <div class="tx">
+        <div class="tx-dot" style="background:${t.type === 'payment' ? 'var(--green-l)' : 'var(--indigo-l)'}">${t.type === 'payment' ? '💸' : '🛒'}</div>
+        <div class="tx-info">
+          <div class="tx-title">${t.type === 'payment' ? `Payment — ${t.method}` : `Katha Entry (${(t.items || []).length} items)`}</div>
+          <div class="tx-sub">${t.notes || ((t.items || []).map(i => i.name).slice(0, 2).join(', ') + (t.items?.length > 2 ? '…' : ''))}</div>
+        </div>
+        <div class="tx-right">
+          <div class="tx-amt" style="color:${t.type === 'payment' ? 'var(--green)' : 'var(--saffron-d)'}">${t.type === 'payment' ? '-' : '+'}${rupee(t.type === 'payment' ? t.amount : t.total)}</div>
+          <div class="tx-date">${fmtDateShort(t.date)}</div>
+        </div>
+      </div>
+    `).join('')}</div>`;
+      }
+      if (tab === 'qr') {
+        const el = document.getElementById('dtab-qr');
+        el.innerHTML = `<div class="qr-hero">
+      <div class="qr-store">KaathaBook Store</div>
+      <div class="qr-name">${c.name}</div>
+      <div class="qr-id">${c.id}</div>
+      <div class="qr-box" id="qr-box-${c.id}"></div>
+      <div class="qr-hint">Show at shop counter to add to katha</div>
+      <div class="qr-stats">
+        <div class="qr-stat"><div class="qr-stat-v">${rupee(c.balance)}</div><div class="qr-stat-l">Balance</div></div>
+        <div style="width:1px;background:rgba(255,255,255,.2)"></div>
+        <div class="qr-stat"><div class="qr-stat-v">${rupee(c.limit)}</div><div class="qr-stat-l">Limit</div></div>
+        <div style="width:1px;background:rgba(255,255,255,.2)"></div>
+        <div class="qr-stat"><div class="qr-stat-v">${c.cycle}</div><div class="qr-stat-l">Cycle</div></div>
+      </div>
+    </div>`;
+        setTimeout(() => {
+          const box = document.getElementById('qr-box-' + c.id);
+          if (box && typeof QRCode !== 'undefined') {
+            try { new QRCode(box, { text: JSON.stringify({ id: c.id, name: c.name, store: 'KaathaBook Store' }), width: 90, height: 90, colorDark: '#111111', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M }); }
+            catch (e) { }
+          }
+        }, 100);
+      }
+    }
+
+    // ══════════════════════════════════════════════
+    // ANALYTICS
+    // ══════════════════════════════════════════════
+    function renderAnalytics() {
+      const totalDue = customers.reduce((s, c) => s + (c.balance || 0), 0);
+      const totalGiven = transactions.filter(t => t.type === 'credit').reduce((s, t) => s + (t.total || 0), 0);
+      const totalCollected = transactions.filter(t => t.type === 'payment').reduce((s, t) => s + (t.amount || 0), 0);
+      const avgBalance = customers.length ? Math.round(totalDue / customers.length) : 0;
+
+      document.getElementById('analytics-stats').innerHTML = `
+    <div class="stat"><div class="stat-val" style="color:var(--saffron)">${rupee(totalGiven)}</div><div class="stat-lbl">Total Credit Given</div></div>
+    <div class="stat"><div class="stat-val" style="color:var(--green)">${rupee(totalCollected)}</div><div class="stat-lbl">Total Collected</div></div>
+    <div class="stat"><div class="stat-val" style="color:var(--indigo)">${rupee(totalDue)}</div><div class="stat-lbl">Outstanding Balance</div></div>
+    <div class="stat"><div class="stat-val" style="color:var(--amber)">${rupee(avgBalance)}</div><div class="stat-lbl">Avg Balance / Customer</div></div>
+  `;
+
+      // Item frequency from all credit transactions
+      const freq = {};
+      transactions.filter(t => t.type === 'credit').forEach(t => {
+        let items = t.items;
+        if (typeof items === 'string') {
+          try { items = JSON.parse(items); } catch (e) { items = []; }
+        }
+        (items || []).forEach(i => {
+          if (!freq[i.name]) freq[i.name] = { qty: 0, amt: 0, emoji: '🛒' };
+          freq[i.name].qty += i.qty; freq[i.name].amt += i.price * i.qty;
+          const p = products.find(x => x.id === i.pid);
+          if (p) freq[i.name].emoji = p.emoji;
+        });
+      });
+      const sorted = Object.entries(freq).sort((a, b) => b[1].qty - a[1].qty).slice(0, 8);
+      const maxQty = sorted[0]?.[1]?.qty || 1;
+      const colors = ['var(--saffron)', 'var(--indigo2)', 'var(--green)', 'var(--amber)', '#9B59B6', 'var(--red)', '#197BBD', '#E85D04'];
+      document.getElementById('items-bar-chart').innerHTML = sorted.map(([name, v], i) => `
+    <div class="bar-row">
+      <div class="bar-lbl">${v.emoji} ${name.split(' ').slice(0, 2).join(' ')}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(v.qty / maxQty * 100)}%;background:${colors[i]}">${v.qty} units</div></div>
+      <div class="bar-v">${rupee(v.amt)}</div>
+    </div>
+  `).join('') || '<div style="color:var(--muted);font-size:13px;text-align:center;padding:20px">No transaction data yet</div>';
+
+      // Recovery - calculated from actual transaction data
+      const creditTxs = transactions.filter(t => t.type === 'credit');
+      let ontime = 0, late = 0, defaulted = 0;
+
+      creditTxs.forEach(tx => {
+        const cust = customers.find(c => c.id === tx.custId);
+        if (!cust) return;
+        const payments = transactions.filter(t => t.type === 'payment' && t.custId === tx.custId && new Date(t.date) >= new Date(tx.date));
+        const totalPaid = payments.reduce((s, t) => s + t.amount, 0);
+        if (totalPaid >= tx.total) {
+          const avgPayDate = payments.length ? new Date(payments[payments.length - 1].date) : new Date();
+          if (avgPayDate <= new Date(cust.dueDate)) { ontime++; } else { late++; }
+        } else if (totalPaid > 0) { late++; } else { defaulted++; }
+      });
+      const total1 = ontime + late + defaulted || 1;
+      const ontimeP = Math.round(ontime / total1 * 100);
+      const lateP = Math.round(late / total1 * 100);
+      const defaultedP = 100 - ontimeP - lateP;
+      document.getElementById('a-ontime').textContent = ontimeP + '%';
+      document.getElementById('a-late').textContent = lateP + '%';
+      document.getElementById('a-default').textContent = Math.max(0, defaultedP) + '%';
+
+      document.getElementById('insights-list').innerHTML = [
+        { icon: '📈', txt: `Top selling item: <strong>${sorted[0]?.[0] || 'N/A'}</strong>. Consider stocking more.` },
+        { icon: '⚠️', txt: `${customers.filter(c => custStatus(c) === 'over').length} customers are overdue. Send WhatsApp reminders.` },
+        { icon: '💡', txt: `Average katha balance is ${rupee(avgBalance)}. Set alerts above ${rupee(1000)}.` },
+        { icon: '🔔', txt: `Month-end collections peak on 28–31st. Plan staffing accordingly.` },
+      ].map(i => `<div style="display:flex;gap:10px;align-items:flex-start;padding:10px;background:var(--bg);border-radius:10px;margin-bottom:8px"><span style="font-size:18px">${i.icon}</span><span style="font-size:13px;line-height:1.5">${i.txt}</span></div>`).join('');
+
+      const highBal = customers.filter(c => c.balance >= 1000).sort((a, b) => b.balance - a.balance);
+      document.getElementById('high-bal-list').innerHTML = highBal.map(c => {
+        const s = statusLabel(c);
+        return `<div class="ci" onclick="openDetail('${c.id}')">
+      <div class="cav" style="background:${c.bg};color:${c.color}">${c.initials}</div>
+      <div class="cinfo"><div class="cname">${c.name}</div><span class="cbadge ${s.cls}">${s.txt}</span></div>
+      <div class="camt"><div class="camtv" style="color:var(--red)">${rupee(c.balance)}</div></div>
+    </div>`;
+      }).join('') || '<div style="color:var(--muted);font-size:13px;text-align:center;padding:16px">No high-balance customers 🎉</div>';
+    }
+
+    // ══════════════════════════════════════════════
+    // CUSTOMER PORTAL
+    // ══════════════════════════════════════════════
+    function renderPortal() {
+      const seg = document.getElementById('portal-seg');
+      if (!seg) return;
+
+      if (currentUser && currentUser.role === 'customer') {
+        seg.innerHTML = ''; // No switcher for customers
+        renderPortalForCust(currentUser.custId);
+        return;
+      }
+
+      if (seg) seg.innerHTML = customers.map((c, i) => `<button class="seg-btn ${i === 0 ? 'on' : ''}" onclick="setPortalCust('${c.id}',this)">${c.name.split(' ')[0]}</button>`).join('');
+      if (customers.length) renderPortalForCust(customers[0].id);
+    }
+    function setPortalCust(id, btn) {
+      if (btn) { document.querySelectorAll('#portal-seg .seg-btn').forEach(b => b.classList.remove('on')); btn.classList.add('on'); }
+      renderPortalForCust(id);
+    }
+    function renderPortalForCust(id) {
+      const c = customers.find(x => x.id === id); if (!c) return;
+      const s = custStatus(c);
+      const daysLeft = s !== 'over' ? Math.ceil((new Date(c.dueDate) - new Date()) / 86400000) : 0;
+
+      document.getElementById('portal-qr-card').innerHTML = `
+    <div class="qr-hero">
+      <div class="qr-store">KaathaBook Store</div>
+      <div class="qr-name">${c.name}</div>
+      <div class="qr-id">${c.id}</div>
+      <div class="qr-box" id="portal-qr-${id}"></div>
+      <div class="qr-hint">Show this QR at the shop counter</div>
+      <div class="qr-stats">
+        <div class="qr-stat"><div class="qr-stat-v">${rupee(c.balance)}</div><div class="qr-stat-l">Due</div></div>
+        <div style="width:1px;background:rgba(255,255,255,.2)"></div>
+        <div class="qr-stat"><div class="qr-stat-v">${s === 'over' ? 'Overdue' : daysLeft + ' days'}</div><div class="qr-stat-l">Pay By</div></div>
+        <div style="width:1px;background:rgba(255,255,255,.2)"></div>
+        <div class="qr-stat"><div class="qr-stat-v">${rupee(c.limit - c.balance)}</div><div class="qr-stat-l">Available</div></div>
+      </div>
+    </div>
+  `;
+      setTimeout(() => {
+        const box = document.getElementById('portal-qr-' + id);
+        if (box && typeof QRCode !== 'undefined') {
+          try { box.innerHTML = ''; new QRCode(box, { text: c.id, width: 90, height: 90, colorDark: '#111111', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M }); } catch (e) { }
+        }
+      }, 100);
+
+      const alertEl = document.getElementById('portal-alert');
+      if (c.balance > 0) {
+        alertEl.innerHTML = s === 'over'
+          ? `<div class="alert red"><span>⚠️</span><div class="alert-txt"><strong>Payment overdue!</strong> Please pay ${rupee(c.balance)} as soon as possible.</div></div>`
+          : daysLeft <= 7
+            ? `<div class="alert warn"><span>⏰</span><div class="alert-txt"><strong>${rupee(c.balance)} due in ${daysLeft} days.</strong> Due date: ${fmtDate(c.dueDate)}</div></div>`
+            : `<div class="alert"><span>📅</span><div class="alert-txt">Next payment of <strong>${rupee(c.balance)}</strong> due on ${fmtDate(c.dueDate)}.</div></div>`;
+      } else { alertEl.innerHTML = '<div class="alert" style="background:var(--green-l);border-color:#A0DEC0"><span>✅</span><div class="alert-txt" style="color:var(--green)"><strong>No dues!</strong> Your account is clear.</div></div>'; }
+
+      const txs = custTx(id);
+      const monthCredit = txs.filter(t => t.type === 'credit' && t.date.startsWith('2024-03'));
+      const allItems = {};
+      monthCredit.forEach(t => {
+        let items = t.items;
+        if (typeof items === 'string') {
+          try { items = JSON.parse(items); } catch (e) { items = []; }
+        }
+        (items || []).forEach(i => { if (!allItems[i.name]) allItems[i.name] = { qty: 0, total: 0 }; allItems[i.name].qty += i.qty; allItems[i.name].total += i.price * i.qty; });
+      });
+      const monthTotal = monthCredit.reduce((s, t) => s + t.total, 0);
+      document.getElementById('portal-month').innerHTML = Object.entries(allItems).map(([name, v]) => `
+    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px">
+      <span>${name} ×${v.qty}</span><span style="font-weight:700;color:var(--saffron-d)">${rupee(v.total)}</span>
+    </div>
+  `).join('') + `<div style="display:flex;justify-content:space-between;padding:10px 0;font-weight:800"><span>Month Total</span><span style="color:var(--saffron-d)">${rupee(monthTotal)}</span></div>`;
+
+      document.getElementById('portal-history').innerHTML = txs.slice(0, 8).map(t => `
+    <div class="tx">
+      <div class="tx-dot" style="background:${t.type === 'payment' ? 'var(--green-l)' : 'var(--indigo-l)'}">${t.type === 'payment' ? '💸' : '🛒'}</div>
+      <div class="tx-info">
+        <div class="tx-title">${t.type === 'payment' ? `Paid ${rupee(t.amount)} — ${t.method}` : `${(t.items || []).length} items added to katha`}</div>
+        <div class="tx-sub">${t.notes || ''}</div>
+      </div>
+      <div class="tx-right">
+        <div class="tx-amt" style="color:${t.type === 'payment' ? 'var(--green)' : 'var(--saffron-d)'}">${t.type === 'payment' ? '−' : '+'}${rupee(t.type === 'payment' ? t.amount : t.total)}</div>
+        <div class="tx-date">${fmtDate(t.date)}</div>
+      </div>
+    </div>
+  `).join('') || '<div style="color:var(--muted);font-size:13px;text-align:center;padding:20px">No transactions yet</div>';
+    }
+
+    // ══════════════════════════════════════════════
+    // STORE AVATAR — tap to switch to customer portal
+    // ══════════════════════════════════════════════
+    document.getElementById('store-av').addEventListener('click', () => {
+      if (currentPage === 'pg-portal') { navTo('pg-dashboard'); } else { navTo('pg-portal'); }
+    });
+
+    // ══════════════════════════════════════════════
+    // AUTHENTICATION & ROLES
+    // ══════════════════════════════════════════════
+    let currentUser = null;
+
+    async function handleLogin() {
+      const user = document.getElementById('login-user').value;
+      const pass = document.getElementById('login-pass').value;
+      if (!user || !pass) return toast('⚠️ Please enter credentials');
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: user, password: pass })
+        });
+
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.error || 'Login failed');
+        }
+
+        currentUser = await res.json();
+        LS.set('kb_user', currentUser);
+        toast(`👋 Welcome back, ${currentUser.role}`);
+        applyRoleUI();
+      } catch (e) {
+        toast('❌ ' + e.message);
+      }
+    }
+
+    function applyRoleUI() {
+      if (!currentUser) {
+        document.getElementById('pg-login').classList.add('on');
+        document.getElementById('topbar').style.display = 'none';
+        document.querySelector('.btmbar').style.display = 'none';
+        return;
+      }
+
+      document.getElementById('pg-login').classList.remove('on');
+      document.getElementById('topbar').style.display = 'flex';
+
+      if (currentUser.role === 'customer') {
+        document.querySelector('.btmbar').style.display = 'none';
+        document.getElementById('store-av').style.display = 'none';
+        renderPortalForCust(currentUser.custId);
+        navTo('pg-portal');
+      } else {
+        document.querySelector('.btmbar').style.display = 'flex';
+        document.getElementById('store-av').style.display = 'flex';
+        navTo('pg-dashboard');
+        renderDashboard();
+      }
+    }
+
+    function logout() {
+      currentUser = null;
+      LS.remove('kb_user');
+      location.reload();
+    }
+
+    // Check session on init
+    async function initApp() {
+      currentUser = LS.get('kb_user');
+      await loadBackendData(); // Ensure weights and data are fresh
+      applyRoleUI();
+    }
+
+    initApp();
+
+    currentLang = LS.get('kb_lang', 'en');
+    if (currentLang === 'te') document.body.className = 'te';
+    document.getElementById('lang-toggle').textContent = currentLang === 'en' ? 'EN/తె' : 'EN/తె (English)';
+    renderScanPickers();
+
+    // ══════════════════════════════════════════════
+    // PWA SERVICE WORKER
+    // ══════════════════════════════════════════════
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').then(r => { console.log('✅ Service Worker registered') }).catch(e => { console.log('⚠️ SW error:', e) });
+      });
+    }
+  </script>
+
+
+</body></html>

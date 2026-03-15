@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>నా కతా - గ్రాహక ఖాతా</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Noto+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Noto+Sans+Telugu:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --saffron:#E85D04;--saffron2:#FF6B2B;--saffron-l:#FFF3ED;--saffron-d:#B84700;
+  --indigo:#2B3AC2;--indigo2:#3F50E0;--indigo-l:#EEF0FD;
+  --green:#1A9E6A;--green-l:#E6F7F1;
+  --amber:#D4860A;--amber-l:#FEF4E0;
+  --red:#D03030;--red-l:#FDECEC;
+  --bg:#F5F2EE;--card:#FFFFFF;--text:#111111;--muted:#707070;--border:#E4DFD8;
+  --r:14px;--r2:20px;
+}
+html,body{height:100%;font-family:'Noto Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;overflow-x:hidden}
+.app{display:flex;flex-direction:column;height:100vh;max-width:480px;margin:0 auto;position:relative;background:var(--bg)}
+.topbar{background:var(--card);border-bottom:1.5px solid var(--border);padding:0 16px;height:54px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;z-index:50;position:sticky;top:0}
+.logo{font-family:'Baloo 2',sans-serif;font-weight:800;font-size:22px;color:var(--saffron);letter-spacing:-.5px}
+.logo em{color:var(--indigo);font-style:normal}
+.scroll{flex:1;overflow-y:auto;padding:16px 14px;-webkit-overflow-scrolling:touch}
+.scroll::-webkit-scrollbar{display:none}
+h2{font-family:'Baloo 2',sans-serif;font-size:18px;font-weight:700}
+h3{font-family:'Baloo 2',sans-serif;font-size:15px;font-weight:700}
+.muted{color:var(--muted)}
+.caption{font-size:12px;color:var(--muted)}
+.card{background:var(--card);border-radius:var(--r2);border:1px solid var(--border);box-shadow:0 2px 16px rgba(0,0,0,.08);padding:18px;margin-bottom:14px}
+.card-sm{padding:14px 16px}
+.alert{display:flex;align-items:center;gap:10px;background:var(--saffron-l);border:1.5px solid #FFBF9F;border-radius:12px;padding:11px 14px;margin-bottom:14px}
+.alert.warn{background:var(--amber-l);border-color:#F5C78A}
+.alert.red{background:var(--red-l);border-color:#F5AAAA}
+.alert-txt{flex:1;font-size:13px;line-height:1.4}
+.alert-txt strong{color:var(--saffron-d)}
+.qr-hero{background:var(--indigo2);border-radius:22px;padding:22px 20px;color:#fff;text-align:center;margin-bottom:14px;position:relative;overflow:hidden}
+.qr-hero::before,.qr-hero::after{content:'';position:absolute;border-radius:50%;background:rgba(255,255,255,.07)}
+.qr-hero::before{width:140px;height:140px;top:-50px;right:-40px}
+.qr-hero::after{width:90px;height:90px;bottom:-30px;left:-30px}
+.qr-store{font-size:11px;opacity:.65;margin-bottom:4px;letter-spacing:.5px;text-transform:uppercase}
+.qr-name{font-family:'Baloo 2',sans-serif;font-size:22px;font-weight:800;margin-bottom:2px}
+.qr-id{font-size:12px;opacity:.65;margin-bottom:18px}
+.qr-box{width:110px;height:110px;background:#fff;border-radius:14px;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;position:relative;z-index:1}
+.qr-hint{font-size:12px;opacity:.75;margin-bottom:16px}
+.qr-stats{display:flex;justify-content:space-around;border-top:1px solid rgba(255,255,255,.2);padding-top:16px;position:relative;z-index:1}
+.qr-stat{text-align:center}
+.qr-stat-v{font-family:'Baloo 2',sans-serif;font-size:20px;font-weight:800}
+.qr-stat-l{font-size:11px;opacity:.65;margin-top:2px}
+.tx{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.tx:last-child{border-bottom:none}
+.tx-dot{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.tx-info{flex:1}
+.tx-title{font-weight:600;font-size:13px}
+.tx-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.tx-right{text-align:right;flex-shrink:0}
+.tx-amt{font-size:14px;font-weight:800}
+.tx-date{font-size:11px;color:var(--muted);margin-top:2px}
+.empty{text-align:center;padding:36px 20px;color:var(--muted)}
+.empty-icon{font-size:42px;margin-bottom:10px}
+.empty h3{font-size:15px;color:var(--text);margin-bottom:6px}
+.empty p{font-size:13px;line-height:1.6}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:13px 20px;border-radius:14px;font-family:'Baloo 2',sans-serif;font-size:15px;font-weight:700;border:none;cursor:pointer;transition:transform .12s,opacity .12s;width:100%}
+.btn:active{transform:scale(.97)}
+.btn-pri{background:var(--saffron);color:#fff}
+.btn-sec{background:var(--indigo);color:#fff}
+.toast{position:fixed;top:66px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:10px 20px;border-radius:12px;font-size:13px;font-weight:500;z-index:400;opacity:0;transition:all .25s;pointer-events:none}
+.toast.on{opacity:1}
+.item-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.item-row:last-child{border-bottom:none}
+.rupee{font-weight:700;color:var(--saffron-d)}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="logo">నా <em>కతా</em></div>
+    <div style="font-size:12px;color:var(--muted)">గ్రాహక ఖాతా</div>
+  </div>
+  <div class="scroll" id="scroll-area">
+    <div id="portal-content">
+      <div class="empty"><div class="empty-icon">⏳</div><p>Loading your account...</p></div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const LS={
+  get:(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch{return d}},
+  set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}}
+};
+
+let customers=LS.get('kb_customers',[]);
+let transactions=LS.get('kb_transactions',[]);
+let currentLang='te'; // Default to Telugu for customer portal
+
+function rupee(n){return'₹'+Number(n).toLocaleString('en-IN')}
+function fmtDate(d){return new Date(d).toLocaleDateString('te-IN',{day:'numeric',month:'long',year:'numeric'})}
+function fmtDateShort(d){return new Date(d).toLocaleDateString('te-IN',{day:'numeric',month:'short'})}
+function toast(msg,dur=2500){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('on');
+  setTimeout(()=>t.classList.remove('on'),dur);
+}
+
+function custStatus(c){
+  if(c.balance<=0)return'clear';
+  const due=new Date(c.dueDate);
+  const now=new Date();
+  if(due<now)return'over';
+  return'due';
+}
+
+function getURLParameter(name){
+  const urlParams=new URLSearchParams(window.location.search);
+  return urlParams.get(name);
+}
+
+function loadCustomerPortal(){
+  const custId=getURLParameter('id')||customers[0]?.id;
+  const c=customers.find(x=>x.id===custId);
+  
+  if(!c){
+    document.getElementById('portal-content').innerHTML='<div class="empty"><div class="empty-icon">❌</div><h3>గ్రాహకుడు భర్తీ చేయబడినందు</h3><p>కూడా గ్రాహక ID. దయచేసి లింక్‌ను తనిఖీ చేయండి.</p></div>';
+    return;
+  }
+  
+  const s=custStatus(c);
+  const daysLeft=s!=='over'?Math.ceil((new Date(c.dueDate)-new Date())/86400000):0;
+  const txs=transactions.filter(t=>t.custId===c.id).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  
+  let alertHTML='';
+  if(c.balance>0){
+    if(s==='over'){
+      alertHTML=`<div class="alert red"><span>⚠️</span><div class="alert-txt"><strong>చెల్లింపు విలంబం!</strong> దయచేసి ${rupee(c.balance)} వీలైనంత త్వరగా చెల్లించండి.</div></div>`;
+    }else if(daysLeft<=7){
+      alertHTML=`<div class="alert warn"><span>⏰</span><div class="alert-txt"><strong>${rupee(c.balance)} లో ${daysLeft} రోజులలో కట్టవలసిన.</strong> నియత తేదీ: ${fmtDate(c.dueDate)}</div></div>`;
+    }else{
+      alertHTML=`<div class="alert"><span>📅</span><div class="alert-txt">తరువాతి చెల్లింపు <strong>${rupee(c.balance)}</strong> ${fmtDate(c.dueDate)} న కట్టవలసిన.</div></div>`;
+    }
+  }else{
+    alertHTML='<div class="alert" style="background:var(--green-l);border-color:#A0DEC0"><span>✅</span><div class="alert-txt" style="color:var(--green)"><strong>చెల్లింపులు లేవు!</strong> మీ ఖాతా స్పష్టంగా ఉంది.</div></div>';
+  }
+  
+  const monthCredit=txs.filter(t=>t.type==='credit'&&t.date.startsWith(new Date().toISOString().substring(0,7)));
+  const allItems={};
+  monthCredit.forEach(t=>(t.items||[]).forEach(i=>{
+    if(!allItems[i.name])allItems[i.name]={qty:0,total:0,emoji:i.emoji||'📦'};
+    allItems[i.name].qty+=i.qty;
+    allItems[i.name].total+=i.price*i.qty;
+  }));
+  const monthTotal=monthCredit.reduce((s,t)=>s+t.total,0);
+  
+  // Sort items by total amount (most expensive first)
+  const sortedItems=Object.entries(allItems).sort((a,b)=>b[1].total-a[1].total);
+  const monthHTML=sortedItems.map(([name,v])=>`
+    <div class="item-row">
+      <span>${v.emoji} ${name} ×${v.qty}</span><span class="rupee">${rupee(v.total)}</span>
+    </div>
+  `).join('')+`<div class="item-row" style="border-bottom:none;padding-top:10px;font-weight:800;font-size:14px"><span>నెల మొత్తం</span><span class="rupee" style="font-size:16px">${rupee(monthTotal)}</span></div>`;
+  
+  const historyHTML=txs.slice(0,15).map(t=>{
+    if(t.type==='payment'){
+      return `
+        <div class="tx">
+          <div class="tx-dot" style="background:var(--green-l);color:var(--green)">💚</div>
+          <div class="tx-info">
+            <div class="tx-title">చెల్లింపు చేసారు — ${t.method||'అనిర్దిష్టం'}</div>
+            <div class="tx-sub">${t.notes?t.notes:'' }</div>
+          </div>
+          <div class="tx-right">
+            <div class="tx-amt" style="color:var(--green)">−${rupee(t.amount)}</div>
+            <div class="tx-date">${fmtDateShort(t.date)}</div>
+          </div>
+        </div>
+      `;
+    }else{
+      const itemsList=(t.items||[]).map(i=>`<div style="font-size:12px;padding:4px 0;display:flex;justify-content:space-between"><span>${i.name} ×${i.qty}</span><span style="color:var(--muted)">${rupee(i.price*i.qty)}</span></div>`).join('');
+      return `
+        <div class="tx">
+          <div class="tx-dot" style="background:var(--indigo-l);color:var(--indigo)">🛒</div>
+          <div class="tx-info">
+            <div class="tx-title">${(t.items||[]).length} వస్తువులు కొనుగోలు చేసారు</div>
+            <div style="margin-top:6px;padding:6px;background:rgba(59,77,184,0.05);border-radius:8px;font-size:12px">${itemsList}</div>
+            <div class="tx-sub" style="margin-top:4px">${t.notes?t.notes:''}</div>
+          </div>
+          <div class="tx-right">
+            <div class="tx-amt" style="color:var(--saffron-d)">+${rupee(t.total)}</div>
+            <div class="tx-date">${fmtDateShort(t.date)}</div>
+          </div>
+        </div>
+      `;
+    }
+  }).join('')||'<div style="color:var(--muted);font-size:13px;text-align:center;padding:20px">ఏటువంటి లావాదేవీ లేదు</div>`;
+  
+  document.getElementById('portal-content').innerHTML=`
+    <div class="qr-hero">
+      <div class="qr-store">${c.length?c.split(' ')[0]:'Store'} జనరల్ స్టోర్</div>
+      <div class="qr-name">${c.name}</div>
+      <div class="qr-id">${c.id}</div>
+      <div class="qr-box" id="portal-qr"></div>
+      <div class="qr-hint">దుకాణ కౌంటర్‌ వద్ద ఈ QR ని చూపించండి</div>
+      <div class="qr-stats">
+        <div class="qr-stat"><div class="qr-stat-v">${rupee(c.balance)}</div><div class="qr-stat-l">చెల్లవలసిన</div></div>
+        <div style="width:1px;background:rgba(255,255,255,.2)"></div>
+        <div class="qr-stat"><div class="qr-stat-v">${s==='over'?'విలంబం':daysLeft+' రోజులు'}</div><div class="qr-stat-l">చెల్లింపు డేట్</div></div>
+        <div style="width:1px;background:rgba(255,255,255,.2)"></div>
+        <div class="qr-stat"><div class="qr-stat-v">${rupee(c.limit-c.balance)}</div><div class="qr-stat-l">ఉపలబ్ధ</div></div>
+      </div>
+    </div>
+    
+    ${alertHTML}
+    
+    <div class="card card-sm">
+      <h3 style="margin-bottom:12px">ఈ నెల కొనుగోళ్లు</h3>
+      ${monthHTML}
+    </div>
+    
+    <div class="card card-sm">
+      <h3 style="margin-bottom:12px">లావాదేవీ చరిత్ర</h3>
+      ${historyHTML}
+    </div>
+    
+    <div class="card card-sm" style="background:var(--indigo-l);border-color:#99A6F0">
+      <div style="font-size:12px;color:var(--indigo);font-weight:600;margin-bottom:8px">💡 చెల్లింపు చేయాలా?</div>
+      <button class="btn btn-sec" style="margin:0" onclick="openWhatsApp('${c.phone}','${c.name}',${c.balance})">WhatsApp సందేశం పంపండి</button>
+    </div>
+  `;
+  
+  setTimeout(()=>{
+    const box=document.getElementById('portal-qr');
+    if(box&&typeof QRCode!=='undefined'){
+      try{new QRCode(box,{text:JSON.stringify({id:c.id,name:c.name}),width:90,height:90,colorDark:'#111111',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});}
+      catch(e){}
+    }
+  },100);
+}
+
+function openWhatsApp(phone,name,balance){
+  const msg=encodeURIComponent(`నమస్కారం!\n\nనేను చెల్లవలసిన రాశి: ₹${balance}\n\nదయచేసి బ్యాంక్ వివరాలు పంపండి.`);
+  const url=`https://wa.me/91${phone.slice(-10)}?text=${msg}`;
+  window.open(url,'_blank');
+  toast('📱 WhatsApp తెరుస్తున్నాము');
+}
+
+// Load customer portal on page load
+window.addEventListener('load',loadCustomerPortal);
+</script>
+</body>
+</html>
