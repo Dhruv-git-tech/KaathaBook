@@ -16,6 +16,7 @@ const io = new Server(server, {
   cors: { origin: "*" }
 });
 const PORT = process.env.PORT || 3000;
+const IS_VERCEL = process.env.VERCEL === '1' || !!process.env.VERCEL;
 
 // ═══════════════════════════════════════════════════════════
 // MIDDLEWARE
@@ -110,11 +111,24 @@ app.use((err, req, res, next) => {
 let db = null;
 
 async function initDB() {
+  const dbPath = IS_VERCEL 
+    ? path.join('/tmp', 'kaathabook.db') 
+    : path.join(__dirname, 'kaathabook.db');
+    
+  console.log(`📂 Initializing database at: ${dbPath}`);
+  
   db = await open({
-    filename: path.join(__dirname, 'kaathabook.db'),
+    filename: dbPath,
     driver: sqlite3.Database
   });
-  await db.exec('PRAGMA journal_mode = WAL');
+  
+  // WAL mode doesn't work well on some serverless filesystems, but /tmp should support it
+  try {
+    await db.exec('PRAGMA journal_mode = WAL');
+  } catch (e) {
+    console.warn('⚠️ WAL mode failed, falling back to DELETE:', e.message);
+    await db.exec('PRAGMA journal_mode = DELETE');
+  }
 
   // Create tables
   await db.exec(`
@@ -598,7 +612,9 @@ app.get('/api/health', (req, res) => {
 // STATIC FILES & SPA FALLBACK
 // ═══════════════════════════════════════════════════════════
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'kaathabook.html'));
+  // On Vercel, paths might be strange, so we ensure the file exists
+  const indexPath = path.join(__dirname, 'kaathabook.html');
+  res.sendFile(indexPath);
 });
 
 app.get('/customer', (req, res) => {
@@ -636,18 +652,26 @@ app.get('/api/reminders/sms/:custId', async (req, res) => {
 // ═══════════════════════════════════════════════════════════
 // START SERVER
 // ═══════════════════════════════════════════════════════════
+// Export app for Vercel
+export default app;
+
 async function startServer() {
   try {
     await initDB();
-    server.listen(PORT, () => {
-      console.log(`🚀 KaathaBook Backend running on http://localhost:${PORT}`);
-      console.log(`📊 API available at http://localhost:${PORT}/api`);
-      console.log(`💾 Database: kaathabook.db`);
-    });
+    // Only listen if not running as a Vercel function
+    if (!IS_VERCEL) {
+      server.listen(PORT, () => {
+        console.log(`🚀 KaathaBook Backend running on http://localhost:${PORT}`);
+        console.log(`📊 API available at http://localhost:${PORT}/api`);
+        console.log(`💾 Database: kaathabook.db`);
+      });
+    } else {
+      console.log('☁️ Running in Vercel Serverless environment');
+    }
   } catch (err) {
-    console.error('Failed to start server:', err);
-    process.exit(1);
+    console.error('❌ Failed to start server:', err);
+    if (!IS_VERCEL) process.exit(1);
   }
 }
 
-startServer(); // restart trigger
+startServer();
