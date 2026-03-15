@@ -10,8 +10,8 @@
     href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Noto+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Noto+Sans+Telugu:wght@400;500;600;700&display=swap"
     rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="utils.js"></script>
+  <script src="/socket.io/socket.io.js?v=1773592800"></script>
+  <script src="utils.js?v=1773592800"></script>
   <script src="https://unpkg.com/@zxing/library@0.20.0/umd/index.min.js"></script>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#E85D04">
@@ -1478,13 +1478,13 @@
       <div id="pg-login" class="page on">
         <div class="login-header">
           <div class="login-logo">Kaatha<em>Book</em></div>
-          <p class="caption">Digital Udhaar Storefor Retailers</p>
+          <p class="caption">Digital Udhaar Store for Retailers</p>
         </div>
         <div class="login-card">
           <h3 style="margin-bottom:18px;text-align:center">Secure Login</h3>
           <div class="form-group">
             <label class="form-label">Username / Phone</label>
-            <input type="text" id="login-user" class="form-input" placeholder="retailer or KB-C101">
+            <input type="text" id="login-user" class="form-input" placeholder="retailer or KB-10001">
           </div>
           <div class="form-group">
             <label class="form-label">Password / ID</label>
@@ -1497,7 +1497,7 @@
       </div>
 
       <!-- ═══ DASHBOARD ═══ -->
-      <div id="pg-dashboard" class="page on">
+      <div id="pg-dashboard" class="page">
         <div style="display:flex;gap:10px;margin-bottom:14px">
           <button class="btn btn-sec btn-sm" style="flex:1" onclick="openQRScannerModal()">📱 QR స్కాన్ చేయండి</button>
           <button class="btn btn-pri btn-sm" style="flex:1" onclick="navTo('pg-scan')">➕ కతా జోడించండి</button>
@@ -2221,7 +2221,12 @@
 
         if (custData && custData.length > 0) {
           customers = custData;
-          lastKbId = Math.max(...customers.map(c => parseInt(c.id.replace('KB-', '')))) || 10005;
+          // Robust ID parsing to handle KB-10001, KB-C101 etc.
+          const ids = customers.map(c => {
+            const num = parseInt(String(c.id).replace(/\D/g, ''));
+            return isNaN(num) ? 0 : num;
+          });
+          lastKbId = Math.max(10005, ...ids);
           console.log(`✅ Loaded ${custData.length} customers from backend`);
         }
 
@@ -2334,18 +2339,8 @@
             if (idx !== -1) customers[idx] = payload.data;
             else customers.push(payload.data);
             renderCustomerList();
-            if (typeof activeCust !== 'undefined' && activeCust && activeCust.id === payload.data.id) {
-              activeCust = payload.data;
-              renderCustomerDetail(activeCust.id);
-            }
-          } else if (payload.type === 'transaction-added') {
-            const { transaction, customer } = payload.data;
-            if (!transactions.find(t => t.id === transaction.id)) {
-              transactions.unshift(transaction);
-              // Update customer balance locally too
-              const cIdx = customers.findIndex(c => c.id === customer.id);
-              if (cIdx !== -1) customers[cIdx] = customer;
-              renderAll();
+            if (typeof renderDetail === 'function') {
+              renderDetail(payload.data.id);
             }
           }
         });
@@ -2354,6 +2349,17 @@
       }
     } else {
       console.warn('⚠️ Socket.io script not loaded. Live tracking disabled.');
+    }
+
+    // Main render function to refresh UI
+    function renderAll() {
+      if (currentPage === 'pg-dashboard') renderDashboard();
+      if (currentPage === 'pg-customers') renderCustomerList();
+      if (currentPage === 'pg-scan') { renderCatalog(); renderScanPickers(); }
+      if (currentPage === 'pg-products') renderProductList();
+      if (currentPage === 'pg-analytics') renderAnalytics();
+      if (currentPage === 'pg-portal') renderPortal();
+      if (currentPage === 'pg-detail' && detailCustId) renderDetail();
     }
     function custTx(id) { return transactions.filter(t => t.custId === id).sort((a, b) => new Date(b.date) - new Date(a.date)) }
     function custColor(name) { const c = ['#3B4DB8', '#1A9E6A', '#D4860A', '#D03030', '#6B3DB8', '#E85D04', '#197BBD']; return c[name.charCodeAt(0) % c.length] }
