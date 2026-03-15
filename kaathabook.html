@@ -2095,7 +2095,7 @@
     // ══════════════════════════════════════════════
     // BACKEND API CONFIGURATION
     // ══════════════════════════════════════════════
-    const API_BASE = localStorage.getItem('kb_api_base') || 'http://localhost:3000';
+    const API_BASE = ''; // Use relative paths for Vercel
     let isOnline = navigator.onLine;
     let syncInProgress = false;
 
@@ -2322,31 +2322,40 @@
     function rupee(n) { return '₹' + Number(n).toLocaleString('en-IN') }
 
     // 🔗 Socket.io connection for Live Tracking
-    const socket = io();
-    socket.on('connect', () => console.log('✅ Connected to KaathaBook Live Tracking'));
-    socket.on('data-update', (payload) => {
-      console.log('📡 Live Update Received:', payload);
-      // Update local data
-      if (payload.type === 'customer-updated' || payload.type === 'customer-added') {
-        const idx = customers.findIndex(c => c.id === payload.data.id);
-        if (idx !== -1) customers[idx] = payload.data;
-        else customers.push(payload.data);
-        renderCustomerList();
-        if (activeCust && activeCust.id === payload.data.id) {
-          activeCust = payload.data;
-          renderCustomerDetail(activeCust.id);
-        }
-      } else if (payload.type === 'transaction-added') {
-        const { transaction, customer } = payload.data;
-        if (!transactions.find(t => t.id === transaction.id)) {
-          transactions.unshift(transaction);
-          // Update customer balance locally too
-          const cIdx = customers.findIndex(c => c.id === customer.id);
-          if (cIdx !== -1) customers[cIdx] = customer;
-          renderAll();
-        }
+    let socket = null;
+    if (typeof io !== 'undefined') {
+      try {
+        socket = io();
+        socket.on('connect', () => console.log('✅ Connected to KaathaBook Live Tracking'));
+        socket.on('data-update', (payload) => {
+          console.log('📡 Live Update Received:', payload);
+          // Update local data
+          if (payload.type === 'customer-updated' || payload.type === 'customer-added') {
+            const idx = customers.findIndex(c => c.id === payload.data.id);
+            if (idx !== -1) customers[idx] = payload.data;
+            else customers.push(payload.data);
+            renderCustomerList();
+            if (typeof activeCust !== 'undefined' && activeCust && activeCust.id === payload.data.id) {
+              activeCust = payload.data;
+              renderCustomerDetail(activeCust.id);
+            }
+          } else if (payload.type === 'transaction-added') {
+            const { transaction, customer } = payload.data;
+            if (!transactions.find(t => t.id === transaction.id)) {
+              transactions.unshift(transaction);
+              // Update customer balance locally too
+              const cIdx = customers.findIndex(c => c.id === customer.id);
+              if (cIdx !== -1) customers[cIdx] = customer;
+              renderAll();
+            }
+          }
+        });
+      } catch (e) {
+        console.warn('⚠️ Socket.io initialization failed:', e);
       }
-    });
+    } else {
+      console.warn('⚠️ Socket.io script not loaded. Live tracking disabled.');
+    }
     function custTx(id) { return transactions.filter(t => t.custId === id).sort((a, b) => new Date(b.date) - new Date(a.date)) }
     function custColor(name) { const c = ['#3B4DB8', '#1A9E6A', '#D4860A', '#D03030', '#6B3DB8', '#E85D04', '#197BBD']; return c[name.charCodeAt(0) % c.length] }
     function custBg(color) { const m = { '#3B4DB8': '#EEF0FD', '#1A9E6A': '#E6F7F1', '#D4860A': '#FEF4E0', '#D03030': '#FDECEC', '#6B3DB8': '#F3EFFE', '#E85D04': '#FFF3ED', '#197BBD': '#E6F3FD' }; return m[color] || '#F5F2EE' }
