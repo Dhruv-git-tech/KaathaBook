@@ -152,6 +152,7 @@ async function initDB() {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       username TEXT UNIQUE NOT NULL,
       password TEXT NOT NULL,
+      name TEXT,
       role TEXT NOT NULL,
       custId TEXT,
       lastLogin DATETIME,
@@ -211,8 +212,8 @@ async function initDB() {
   const retailer = await db.get('SELECT * FROM users WHERE role = "retailer"');
   if (!retailer) {
     await db.run(
-      'INSERT INTO users (username, password, role) VALUES (?, ?, ?)',
-      ['retailer', 'admin123', 'retailer']
+      'INSERT INTO users (username, password, role, name) VALUES (?, ?, ?, ?)',
+      ['retailer', 'admin123', 'retailer', 'Shop Owner']
     );
     console.log('👤 Default retailer account created (retailer/admin123)');
   }
@@ -281,7 +282,7 @@ app.post('/api/auth/login', async (req, res) => {
           custId: customer.id,
           lastLogin: new Date().toISOString()
         };
-        // Auto-create user record for faster future lookups and role persistence
+        // Auto-create user record for consistency
         await db.run(
           'INSERT OR IGNORE INTO users (username, password, name, role, custId) VALUES (?, ?, ?, ?, ?)',
           [customer.id, customer.id, customer.name, 'customer', customer.id]
