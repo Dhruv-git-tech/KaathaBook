@@ -142,6 +142,47 @@ async function initDB() {
       createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
     );
 
+    CREATE TABLE IF NOT EXISTS customers (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      phone TEXT UNIQUE NOT NULL,
+      addr TEXT,
+      cycle TEXT,
+      "limit" INTEGER,
+      balance REAL DEFAULT 0,
+      initials TEXT,
+      color TEXT,
+      bg TEXT,
+      joinDate DATE,
+      lastTx DATE,
+      dueDate DATE,
+      updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS products (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      emoji TEXT,
+      price REAL NOT NULL,
+      unit TEXT,
+      barcode TEXT UNIQUE,
+      stock INTEGER DEFAULT 0,
+      updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS transactions (
+      id TEXT PRIMARY KEY,
+      custId TEXT NOT NULL,
+      type TEXT NOT NULL,
+      items TEXT,
+      amount REAL,
+      method TEXT,
+      total REAL,
+      date DATETIME,
+      notes TEXT,
+      createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
     CREATE INDEX IF NOT EXISTS idx_customers_phone ON customers(phone);
     CREATE INDEX IF NOT EXISTS idx_customers_joinDate ON customers(joinDate);
     CREATE INDEX IF NOT EXISTS idx_products_barcode ON products(barcode);
