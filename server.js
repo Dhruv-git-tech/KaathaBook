@@ -224,7 +224,27 @@ app.post('/api/auth/login', async (req, res) => {
     const { username, password } = req.body;
     if (!username || !password) return res.status(400).json({ error: 'Username and password required' });
 
-    const user = await db.get('SELECT * FROM users WHERE username = ? AND password = ?', [username, password]);
+    let user = await db.get('SELECT * FROM users WHERE username = ? AND password = ?', [username, password]);
+    
+    // FALLBACK: If not in users table, check customers table (Retailer login is in users, Customers are in customers)
+    if (!user) {
+      const customer = await db.get('SELECT * FROM customers WHERE id = ? AND id = ?', [username, password]);
+      if (customer) {
+        user = {
+          id: customer.id,
+          username: customer.id,
+          name: customer.name,
+          role: 'customer',
+          lastLogin: new Date().toISOString()
+        };
+        // Create the user record if it doesn't exist for consistency
+        await db.run(
+          'INSERT OR IGNORE INTO users (id, username, password, name, role) VALUES (?, ?, ?, ?, ?)',
+          [customer.id, customer.id, customer.id, customer.name, 'customer']
+        );
+      }
+    }
+
     if (!user) return res.status(401).json({ error: 'Invalid credentials' });
 
     await db.run('UPDATE users SET lastLogin = CURRENT_TIMESTAMP WHERE id = ?', user.id);
@@ -297,6 +317,13 @@ app.post('/api/customers', async (req, res, next) => {
     );
     
     const customer = await db.get('SELECT * FROM customers WHERE id = ?', id);
+    
+    // Create corresponding user account for login
+    await db.run(
+      'INSERT OR IGNORE INTO users (id, username, password, name, role) VALUES (?, ?, ?, ?, ?)',
+      [customer.id, customer.id, customer.id, customer.name, 'customer']
+    );
+
     broadcastUpdate('customer-added', customer);
     res.status(201).json(customer);
   } catch (err) {
@@ -556,6 +583,12 @@ app.post('/api/sync', async (req, res) => {
             [cust.id, cust.name, cust.phone, cust.addr, cust.cycle, cust.limit, cust.balance, cust.initials, cust.color, cust.bg, cust.joinDate, cust.lastTx, cust.dueDate]
           );
         }
+        
+        // Ensure user account exists for login
+        await db.run(
+          'INSERT OR IGNORE INTO users (id, username, password, name, role) VALUES (?, ?, ?, ?, ?)',
+          [cust.id, cust.id, cust.id, cust.name, 'customer']
+        );
       }
     }
 
