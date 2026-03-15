@@ -109,6 +109,22 @@ app.use((err, req, res, next) => {
 // DATABASE INITIALIZATION
 // ═══════════════════════════════════════════════════════════
 let db = null;
+const dbPromise = initDB().catch(err => {
+  console.error('❌ Database initialization failed:', err);
+  return null;
+});
+
+// Middleware to ensure DB is ready before handling requests
+app.use(async (req, res, next) => {
+  // Skip middleware for static assets if needed, but for Express on Vercel, everything goes through here
+  if (!db) {
+    await dbPromise;
+  }
+  if (!db && req.path.startsWith('/api')) {
+    return res.status(503).json({ error: 'Database not initialized' });
+  }
+  next();
+});
 
 async function initDB() {
   const dbPath = IS_VERCEL 
@@ -221,15 +237,21 @@ async function initDB() {
 // ═══════════════════════════════════════════════════════════
 app.post('/api/auth/login', async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const username = String(req.body.username || '').trim();
+    const password = String(req.body.password || '').trim();
+    
     if (!username || !password) return res.status(400).json({ error: 'Username and password required' });
 
+    // 1. Check users table (primarily for Retailers)
     let user = await db.get('SELECT * FROM users WHERE username = ? AND password = ?', [username, password]);
     
-    // FALLBACK: If not in users table, check customers table (Retailer login is in users, Customers are in customers)
+    // 2. FALLBACK: Check customers table (Customers use their ID as both username and password)
     if (!user) {
-      const customer = await db.get('SELECT * FROM customers WHERE id = ? AND id = ?', [username, password]);
-      if (customer) {
+      // Use LIKE for case-insensitive ID check if needed, but IDs are usually exact
+      const customer = await db.get('SELECT * FROM customers WHERE id = ?', [username]);
+      
+      // For customers, password must match the ID exactly
+      if (customer && customer.id === password) {
         user = {
           id: customer.id,
           username: customer.id,
@@ -237,15 +259,18 @@ app.post('/api/auth/login', async (req, res) => {
           role: 'customer',
           lastLogin: new Date().toISOString()
         };
-        // Create the user record if it doesn't exist for consistency
+        // Auto-create user record for faster future lookups and role persistence
         await db.run(
-          'INSERT OR IGNORE INTO users (id, username, password, name, role) VALUES (?, ?, ?, ?, ?)',
-          [customer.id, customer.id, customer.id, customer.name, 'customer']
+          'INSERT OR IGNORE INTO users (username, password, name, role, custId) VALUES (?, ?, ?, ?, ?)',
+          [customer.id, customer.id, customer.name, 'customer', customer.id]
         );
       }
     }
 
-    if (!user) return res.status(401).json({ error: 'Invalid credentials' });
+    if (!user) {
+      console.warn(`Failed login attempt for: ${username}`);
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
 
     await db.run('UPDATE users SET lastLogin = CURRENT_TIMESTAMP WHERE id = ?', user.id);
     
